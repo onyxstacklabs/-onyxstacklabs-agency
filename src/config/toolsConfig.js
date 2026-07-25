@@ -2,9 +2,16 @@
 // Add a new tool here, then create its page in src/pages/tools/
 // and register the route in App.jsx — the hub page updates automatically.
 
-import { Calculator, Gauge, ClipboardCheck, Bot } from 'lucide-react';
+import { Calculator, Gauge, ClipboardCheck, Bot, Sparkles } from 'lucide-react';
 
 export const toolsConfig = [
+  {
+    slug: 'ai-readiness-quiz',
+    name: 'AI Readiness Score',
+    tagline: 'Answer 8 quick questions to see how ready your business is for AI automation.',
+    icon: Sparkles,
+    status: 'live'
+  },
   {
     slug: 'ai-cost-calculator',
     name: 'AI Chatbot Cost Calculator',
