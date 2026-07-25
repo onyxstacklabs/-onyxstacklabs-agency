@@ -84,12 +84,12 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
         <a
           href="/"
           onClick={(e) => handleNavClick(e, '/')}
-          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A15B] rounded-md p-1 z-50"
+          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#06B6D4] rounded-md p-1 z-50"
           aria-label={`${siteConfig?.agencyName || 'OnyxStack Labs'} Homepage`}
         >
-          <div className="w-2.5 h-2.5 rounded-full bg-[#C6A15B] shadow-[0_0_12px_rgba(198,161,91,0.6)] group-hover:scale-110 transition-transform duration-300" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#06B6D4] shadow-[0_0_12px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300" />
           <span className="text-base font-semibold tracking-wide text-white">
-            OnyxStack<span className="text-[#C6A15B] font-medium">Labs</span>
+            OnyxStack<span className="text-[#06B6D4] font-medium">Labs</span>
           </span>
         </a>
 
@@ -108,7 +108,7 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
               >
                 {link.label}
                 <span
-                  className={`absolute -bottom-0.5 left-0 h-px bg-[#C6A15B] transition-all duration-300 ${
+                  className={`absolute -bottom-0.5 left-0 h-px bg-[#06B6D4] transition-all duration-300 ${
                     isActive ? 'w-full' : 'w-0'
                   }`}
                   aria-hidden="true"
@@ -134,10 +134,10 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
           <a
             href="/contact"
             onClick={(e) => handleNavClick(e, '/contact')}
-            className={`hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-[13px] font-semibold tracking-wide transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0E17] ${
+            className={`hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-[13px] font-semibold tracking-wide transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#06B6D4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0E17] ${
               currentPath === '/contact'
-                ? 'bg-[#C6A15B] text-[#0A0E17] shadow-[0_0_16px_rgba(198,161,91,0.35)]'
-                : 'bg-[#ECE8DE] text-[#0A0E17] hover:bg-[#C6A15B] hover:shadow-[0_0_16px_rgba(198,161,91,0.3)]'
+                ? 'bg-[#06B6D4] text-[#0A0E17] shadow-[0_0_16px_rgba(6,182,212,0.35)]'
+                : 'bg-[#ECE8DE] text-[#0A0E17] hover:bg-[#06B6D4] hover:shadow-[0_0_16px_rgba(6,182,212,0.3)]'
             }`}
           >
             Start Project
@@ -146,7 +146,7 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
           {/* MOBILE MENU TOGGLE */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex md:hidden flex-col justify-center items-center gap-1.5 w-9 h-9 rounded-lg border border-[#1E2430] bg-[#11151F]/60 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A15B] z-50"
+            className="flex md:hidden flex-col justify-center items-center gap-1.5 w-9 h-9 rounded-lg border border-[#1E2430] bg-[#11151F]/60 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#06B6D4] z-50"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-panel"
             aria-label="Toggle navigation menu"
@@ -186,7 +186,7 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
                 href={link.target}
                 onClick={(e) => handleNavClick(e, link.target)}
                 className={`text-sm font-medium py-3.5 border-b border-[#1E2430]/60 transition-colors ${
-                  isActive ? 'text-[#C6A15B]' : 'text-[#C7CAD4] hover:text-white'
+                  isActive ? 'text-[#06B6D4]' : 'text-[#C7CAD4] hover:text-white'
                 }`}
               >
                 {link.label}
@@ -197,7 +197,7 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
           <a
             href="/contact"
             onClick={(e) => handleNavClick(e, '/contact')}
-            className="mt-5 inline-flex items-center justify-center px-5 py-3 rounded-full text-sm font-semibold tracking-wide bg-[#ECE8DE] text-[#0A0E17] hover:bg-[#C6A15B] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A15B]"
+            className="mt-5 inline-flex items-center justify-center px-5 py-3 rounded-full text-sm font-semibold tracking-wide bg-[#ECE8DE] text-[#0A0E17] hover:bg-[#06B6D4] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#06B6D4]"
           >
             Start Project
           </a>
