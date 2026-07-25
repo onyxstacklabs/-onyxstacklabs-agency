@@ -1,22 +1,12 @@
 import React, { useState } from 'react';
 import ToolLayout from '../../components/ToolLayout';
 
-// Uses Google's official PageSpeed Insights API — the same engine behind
-// Lighthouse. No API key required for light usage; for production-scale
-// traffic, add a free key from Google Cloud Console and read it via
-// import.meta.env.VITE_PAGESPEED_API_KEY (kept optional so the tool still
-// works out of the box).
-const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
-const API_KEY = import.meta.env.VITE_PAGESPEED_API_KEY || '';
-const REQUEST_TIMEOUT_MS = 25000;
+const REQUEST_TIMEOUT_MS = 12000;
 
 function normalizeUrl(input) {
   const trimmed = input.trim();
   if (!trimmed) return null;
-  if (!/^https?:\/\//i.test(trimmed)) {
-    return `https://${trimmed}`;
-  }
-  return trimmed;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 function isLikelyValidUrl(value) {
@@ -28,15 +18,14 @@ function isLikelyValidUrl(value) {
   }
 }
 
-function scoreColor(score) {
-  if (score >= 90) return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
-  if (score >= 50) return 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-  return 'text-red-400 border-red-500/30 bg-red-500/10';
+function speedGrade(totalMs) {
+  if (totalMs < 600) return { label: 'Fast', className: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' };
+  if (totalMs < 1500) return { label: 'Moderate', className: 'text-amber-400 border-amber-500/30 bg-amber-500/10' };
+  return { label: 'Slow', className: 'text-red-400 border-red-500/30 bg-red-500/10' };
 }
 
 export default function SpeedChecker({ currentPath, navigateToNode }) {
   const [urlInput, setUrlInput] = useState('');
-  const [strategy, setStrategy] = useState('mobile');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -56,40 +45,16 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
-      const params = new URLSearchParams({
-        url: targetUrl,
-        strategy,
-        category: 'performance'
-      });
-      if (API_KEY) params.set('key', API_KEY);
-
-      const res = await fetch(`${PSI_ENDPOINT}?${params.toString()}`, {
+      const res = await fetch(`/api/speed-check?url=${encodeURIComponent(targetUrl)}`, {
         signal: controller.signal
       });
+      const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 429) {
-          throw new Error('Too many checks right now — please try again in a minute.');
-        }
-        throw new Error('Could not analyze this site. Double-check the URL and try again.');
+        throw new Error(data.error || 'Could not analyze this site.');
       }
 
-      const data = await res.json();
-      const lighthouse = data?.lighthouseResult;
-      if (!lighthouse) {
-        throw new Error('No performance data returned for this site.');
-      }
-
-      const audits = lighthouse.audits;
-      setResult({
-        finalUrl: lighthouse.finalUrl,
-        performanceScore: Math.round((lighthouse.categories?.performance?.score || 0) * 100),
-        lcp: audits['largest-contentful-paint']?.displayValue || 'N/A',
-        cls: audits['cumulative-layout-shift']?.displayValue || 'N/A',
-        tbt: audits['total-blocking-time']?.displayValue || 'N/A',
-        fcp: audits['first-contentful-paint']?.displayValue || 'N/A',
-        speedIndex: audits['speed-index']?.displayValue || 'N/A'
-      });
+      setResult(data);
     } catch (err) {
       if (err.name === 'AbortError') {
         setError('The check took too long and timed out. Please try again.');
@@ -106,13 +71,16 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
     if (e.key === 'Enter' && !loading) runCheck();
   };
 
+  const grade = result ? speedGrade(result.totalMs) : null;
+
   const metricCards = result
     ? [
-        { label: 'Largest Contentful Paint', value: result.lcp },
-        { label: 'First Contentful Paint', value: result.fcp },
-        { label: 'Total Blocking Time', value: result.tbt },
-        { label: 'Cumulative Layout Shift', value: result.cls },
-        { label: 'Speed Index', value: result.speedIndex }
+        { label: 'Time to First Byte', value: `${result.ttfbMs} ms` },
+        { label: 'Total Load Time', value: `${result.totalMs} ms` },
+        { label: 'Page Size', value: `${result.sizeKb} KB` },
+        { label: 'HTTPS', value: result.https ? 'Secure' : 'Not Secure' },
+        { label: 'Compression', value: result.compression ? result.compression.toUpperCase() : 'None Detected' },
+        { label: 'Caching Headers', value: result.cacheControl ? 'Present' : 'Not Set' }
       ]
     : [];
 
@@ -121,7 +89,7 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
       currentPath={currentPath}
       navigateToNode={navigateToNode}
       title="Website Speed Checker"
-      tagline="Get a real Core Web Vitals report for any website, powered by Google PageSpeed Insights."
+      tagline="Instant server-side health check for any website — response time, HTTPS, compression, and caching. No signup needed."
     >
       <div className="space-y-6">
         <div>
@@ -147,24 +115,8 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
               disabled={loading}
               className="shrink-0 bg-[#06B6D4] text-black px-6 py-3 rounded-xl text-xs font-mono uppercase tracking-widest font-bold transition-all duration-300 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Analyzing…' : 'Check Speed'}
+              {loading ? 'Checking…' : 'Check Speed'}
             </button>
-          </div>
-
-          <div className="flex items-center gap-2 mt-4">
-            {['mobile', 'desktop'].map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setStrategy(mode)}
-                className={`px-4 py-1.5 rounded-full text-[11px] font-mono uppercase tracking-widest border transition-colors ${
-                  strategy === mode
-                    ? 'bg-[#06B6D4]/10 border-[#06B6D4]/40 text-[#06B6D4]'
-                    : 'border-neutral-800 text-neutral-500 hover:text-neutral-300'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -177,15 +129,15 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
         {loading && (
           <div className="p-8 rounded-xl border border-neutral-800 bg-neutral-900/50 text-center">
             <div className="inline-block w-6 h-6 border-2 border-[#06B6D4] border-t-transparent rounded-full animate-spin mb-3" aria-hidden="true" />
-            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest">Running a live audit — this can take up to 20 seconds</p>
+            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest">Fetching and measuring the page</p>
           </div>
         )}
 
         {result && !loading && (
           <div className="space-y-6 pt-2">
-            <div className={`p-6 rounded-2xl border text-center ${scoreColor(result.performanceScore)}`}>
-              <div className="text-[10px] font-mono uppercase tracking-widest opacity-80 mb-2">Performance Score</div>
-              <div className="text-5xl font-bold">{result.performanceScore}</div>
+            <div className={`p-6 rounded-2xl border text-center ${grade.className}`}>
+              <div className="text-[10px] font-mono uppercase tracking-widest opacity-80 mb-2">Overall Speed</div>
+              <div className="text-4xl font-bold">{grade.label}</div>
               <div className="text-[11px] mt-2 opacity-70 break-all">{result.finalUrl}</div>
             </div>
 
