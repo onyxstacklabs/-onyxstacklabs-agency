@@ -24,6 +24,6 @@ export const toolsConfig = [
     name: 'Software Project Cost Estimator',
     tagline: 'Select your features and get a rough budget and timeline range instantly.',
     icon: ClipboardCheck,
-    status: 'coming-soon'
+    status: 'live'
   }
 ];
