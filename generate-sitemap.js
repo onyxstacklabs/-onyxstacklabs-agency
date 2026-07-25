@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { toolsConfig } from './src/config/toolsConfig.js';
 
 async function buildSitemap() {
   console.log('🚀 [OnyxStack Labs GSC Audit] Starting dynamic sitemap pipeline execution...');
@@ -22,8 +23,7 @@ async function buildSitemap() {
     { path: '/contact', changefreq: 'monthly', priority: '0.8' },
     { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },
     { path: '/terms-conditions', changefreq: 'yearly', priority: '0.3' },
-    { path: '/cookie-policy', changefreq: 'yearly', priority: '0.3' },
-    { path: '/thankyou', changefreq: 'monthly', priority: '0.5' },
+    { path: '/cookies-policy', changefreq: 'yearly', priority: '0.3' },
     { path: '/blog', changefreq: 'daily', priority: '0.8' }
   ];
 
@@ -32,6 +32,19 @@ async function buildSitemap() {
   staticRoutes.forEach(route => {
     xmlUrlNodes += `\n  <url>\n    <loc>${BASE_URL}${route.path}</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>`;
   });
+
+  // 1b. Tools Hub + individual tool pages — pulled directly from toolsConfig.js,
+  // so any tool added there is automatically included here. Only 'live' tools
+  // are indexed; 'coming-soon' tools have no page yet, so they're skipped.
+  console.log('🔧 [Tools Sitemap] Building tool page entries from toolsConfig...');
+  xmlUrlNodes += `\n  <url>\n    <loc>${BASE_URL}/tools</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`;
+
+  toolsConfig
+    .filter(tool => tool.status === 'live')
+    .forEach(tool => {
+      console.log(`🔗 [Tools Sitemap] Mapping tool page: /tools/${tool.slug}`);
+      xmlUrlNodes += `\n  <url>\n    <loc>${BASE_URL}/tools/${tool.slug}</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
+    });
 
   // 2. Verified Production Firebase Configuration Data Matrix
   const explicitConfig = {
