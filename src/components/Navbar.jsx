@@ -59,6 +59,7 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
     { label: "Home", target: "/", type: "absolute", sectionKey: null },
     { label: "Services", target: "#services", type: "anchor", sectionKey: "services" },
     { label: "Portfolio", target: "#portfolio", type: "anchor", sectionKey: "portfolio" },
+    { label: "Tools", target: "/tools", type: "absolute", sectionKey: null },
     { label: "About", target: "/about", type: "absolute", sectionKey: null },
     { label: "Contact", target: "/contact", type: "absolute", sectionKey: null }
   ];
