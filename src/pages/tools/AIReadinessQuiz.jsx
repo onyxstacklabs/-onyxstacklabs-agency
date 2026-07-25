@@ -44,6 +44,14 @@ function getBand(score) {
   };
 }
 
+// Scrolls to the top of the viewport smoothly — used whenever the quiz
+// content swaps (question list <-> results), since the new content is a
+// different height and the old scroll position would otherwise land
+// somewhere in the middle of the page (or past the footer).
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 export default function AIReadinessQuiz({ currentPath, navigateToNode }) {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -62,12 +70,15 @@ export default function AIReadinessQuiz({ currentPath, navigateToNode }) {
   };
 
   const handleSubmit = () => {
-    if (allAnswered) setSubmitted(true);
+    if (!allAnswered) return;
+    setSubmitted(true);
+    scrollToTop();
   };
 
   const handleRestart = () => {
     setAnswers({});
     setSubmitted(false);
+    scrollToTop();
   };
 
   return (
