@@ -7,7 +7,28 @@ import Footer from './Footer';
 export default function ToolLayout({ currentPath, navigateToNode, title, tagline, children }) {
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [currentPath]);
+
+  // Sets a unique <title> and meta description per tool, and restores the
+  // site-wide defaults on unmount so navigating to a non-tool page doesn't
+  // carry a stale tool title with it.
+  useEffect(() => {
+    const previousTitle = document.title;
+    const metaDescription = document.querySelector('meta[name="description"]');
+    const previousDescription = metaDescription ? metaDescription.getAttribute('content') : null;
+
+    document.title = `${title} | Free Tool by OnyxStack Labs`;
+    if (metaDescription) {
+      metaDescription.setAttribute('content', tagline);
+    }
+
+    return () => {
+      document.title = previousTitle;
+      if (metaDescription && previousDescription !== null) {
+        metaDescription.setAttribute('content', previousDescription);
+      }
+    };
+  }, [title, tagline]);
 
   const triggerConsultation = () => {
     navigateToNode('/');
