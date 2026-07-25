@@ -34,8 +34,7 @@ async function buildSitemap() {
   });
 
   // 1b. Tools Hub + individual tool pages — pulled directly from toolsConfig.js,
-  // so any tool added there is automatically included here. Only 'live' tools
-  // are indexed; 'coming-soon' tools have no page yet, so they're skipped.
+  // so any tool added there is automatically included here.
   console.log('🔧 [Tools Sitemap] Building tool page entries from toolsConfig...');
   xmlUrlNodes += `\n  <url>\n    <loc>${BASE_URL}/tools</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`;
 
@@ -65,9 +64,13 @@ async function buildSitemap() {
     const db = getFirestore(app);
     console.log('✅ [Firestore Audit] Cloud Firestore instance wrapper references established.');
     
-    console.log('📁 [Firestore Audit] Query Target Validation - Collection target: "blogs" | Parameter status == "LIVE"');
+    // NOTE: field corrected from 'status' == 'LIVE' to 'published' == true —
+    // this must match the field the Firestore security rule checks
+    // (resource.data.published == true), otherwise Firestore rejects the
+    // entire anonymous list query outright, even if matching docs exist.
+    console.log('📁 [Firestore Audit] Query Target Validation - Collection target: "blogs" | Parameter published == true');
     const blogCollectionRef = collection(db, 'blogs');
-    const liveBlogsQuery = query(blogCollectionRef, where('status', '==', 'LIVE'));
+    const liveBlogsQuery = query(blogCollectionRef, where('published', '==', true));
     
     console.log('⏳ [Firestore Audit] Dispatching asynchronous remote connection network frame...');
     const querySnapshot = await getDocs(liveBlogsQuery);
@@ -105,15 +108,13 @@ async function buildSitemap() {
       }
     });
 
-    console.log(`📊 [Pipeline Inventory Analysis] Total matching "LIVE" documents successfully loaded into RAM: ${liveBlogs.length}`);
+    console.log(`📊 [Pipeline Inventory Analysis] Total matching "published" documents successfully loaded into RAM: ${liveBlogs.length}`);
 
     if (liveBlogs.length === 0) {
-      console.warn('❌ [Pipeline Threat Analysis] CRITICAL: 0 blog entries processed. Reason: The remote "blogs" collection contains no matching data nodes OR runtime authentication environment rejected execution silent fail.');
+      console.warn('❌ [Pipeline Threat Analysis] CRITICAL: 0 blog entries processed. Reason: The remote "blogs" collection contains no documents with published == true.');
     } else {
-      // Sort blog URLs by newest updatedAt first
       liveBlogs.sort((a, b) => b.sortTimestamp - a.sortTimestamp);
 
-      // Append sorted dynamic blog entries to nodes matrix
       liveBlogs.forEach(blog => {
         xmlUrlNodes += `\n  <url>\n    <loc>${BASE_URL}/blog/${blog.slug}</loc>\n    <lastmod>${blog.lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
       });
