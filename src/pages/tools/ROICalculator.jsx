@@ -17,6 +17,12 @@ export default function ROICalculator({ currentPath, navigateToNode }) {
     };
   }, [hoursPerWeek, hourlyRate, automationPercent]);
 
+  // Strips leading zeros and handles empty input cleanly so fields never show "020"
+  const handleNumberChange = (setter) => (e) => {
+    const raw = e.target.value.replace(/^0+(?=\d)/, '');
+    setter(raw === '' ? 0 : Number(raw));
+  };
+
   const inputClass =
     "w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#06B6D4] transition-colors";
   const labelClass =
@@ -35,8 +41,10 @@ export default function ROICalculator({ currentPath, navigateToNode }) {
           <input
             type="number"
             min="0"
-            value={hoursPerWeek}
-            onChange={(e) => setHoursPerWeek(Number(e.target.value))}
+            value={hoursPerWeek === 0 ? '' : hoursPerWeek}
+            onFocus={(e) => e.target.select()}
+            onChange={handleNumberChange(setHoursPerWeek)}
+            placeholder="0"
             className={inputClass}
           />
         </div>
@@ -46,8 +54,10 @@ export default function ROICalculator({ currentPath, navigateToNode }) {
           <input
             type="number"
             min="0"
-            value={hourlyRate}
-            onChange={(e) => setHourlyRate(Number(e.target.value))}
+            value={hourlyRate === 0 ? '' : hourlyRate}
+            onFocus={(e) => e.target.select()}
+            onChange={handleNumberChange(setHourlyRate)}
+            placeholder="0"
             className={inputClass}
           />
         </div>
