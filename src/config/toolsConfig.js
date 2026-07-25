@@ -15,7 +15,7 @@ export const toolsConfig = [
   {
     slug: 'speed-checker',
     name: 'Website Speed Checker',
-    tagline: 'Real Core Web Vitals and PageSpeed score for any website — powered by Google.',
+    tagline: 'Instant response time, HTTPS, compression, and caching check for any website.',
     icon: Gauge,
     status: 'live'
   },
