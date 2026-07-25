@@ -30,6 +30,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const ToolsHub = lazy(() => import('./pages/ToolsHub'));
 const ROICalculator = lazy(() => import('./pages/tools/ROICalculator'));
 const SpeedChecker = lazy(() => import('./pages/tools/SpeedChecker'));
+const ProjectEstimator = lazy(() => import('./pages/tools/ProjectEstimator'));
 
 // ZERO-DELAY EMPTY FALLBACK (Koi splash logo ya screen delay nahi aayega)
 const InvisibleFallback = () => <div className="min-h-screen bg-[#050505]" />;
@@ -124,6 +125,10 @@ export default function App() {
           <Route 
             path="/tools/speed-checker" 
             element={<SpeedChecker currentPath={currentPath} navigateToNode={navigateToNode} />} 
+          />
+          <Route 
+            path="/tools/project-estimator" 
+            element={<ProjectEstimator currentPath={currentPath} navigateToNode={navigateToNode} />} 
           />
 
           <Route 
