@@ -106,6 +106,35 @@ export default function Pricing({ currentPath, navigateToNode }) {
     }
   ];
 
+  // Injects FAQPage structured data (schema.org) into <head> so search
+  // engines and AI answer engines (Google AI Overviews, ChatGPT search,
+  // Perplexity, etc.) can surface these Q&As directly. Built dynamically
+  // from faqCatalog above, so editing the FAQ list keeps this in sync
+  // automatically. Removed on unmount so it never leaks onto other pages.
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqCatalog.map((faq) => ({
+        "@type": "Question",
+        "name": faq.q,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.a
+        }
+      }))
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
   const triggerConsultation = () => {
     navigateToNode('/');
     setTimeout(() => {
