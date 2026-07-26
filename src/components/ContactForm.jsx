@@ -142,9 +142,17 @@ export default function ContactForm({
                   onChange={(e) => setFormData({...formData, budget: e.target.value})}
                   className="w-full bg-[#05070B] border border-[#1E293B] hover:border-slate-700/80 focus:border-[#06B6D4] rounded-xl py-3 px-4 text-xs text-white outline-none cursor-pointer appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] transition-all duration-300 disabled:opacity-50"
                 >
-                  <option>Standard MVP ($1,000 - $2,000)</option>
-                  <option>Premium Business Tier ($2,000 - $5,000)</option>
-                  <option>Enterprise Custom Architecture ($5,000+)</option>
+                  <option>$500 - $1,000</option>
+                  <option>$1,000 - $2,000</option>
+                  <option>$2,000 - $3,000</option>
+                  <option>$3,000 - $4,000</option>
+                  <option>$4,000 - $5,000</option>
+                  <option>$5,000 - $6,000</option>
+                  <option>$6,000 - $7,000</option>
+                  <option>$7,000 - $8,000</option>
+                  <option>$8,000 - $9,000</option>
+                  <option>$9,000 - $10,000</option>
+                  <option>$10,000+</option>
                 </select>
                 <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-500">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
