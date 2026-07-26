@@ -7,7 +7,6 @@ import { siteConfig } from '../config/siteConfig';
 // IMMEDIATE CRITICAL ABOVE-THE-FOLD IMPORTS
 import Hero from '../components/Hero';
 import Clients from '../components/Clients';
-import Stats from '../components/Stats';
 
 // LAZY-LOADED BELOW-THE-FOLD COMPONENTS FOR LIGHTHOUSE OPTIMIZATION
 const BrandShowcase = lazy(() => import('../components/BrandShowcase'));
@@ -177,8 +176,6 @@ export default function Home({ currentPath, navigateToNode }) {
       <Hero />
       
       <Clients />
-      
-      <Stats />
       
       {/* BELOW THE FOLD SECTIONS (DYNAMICALLY LOADED VIA REACT.LAZY + SUSPENSE) */}
       <Suspense fallback={<SectionFallback />}>
