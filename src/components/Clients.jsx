@@ -1,70 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 /**
  * Clients Component
- * Enterprise trust section for OnyxStack Labs — completely refactored to align with
- * the modern high-performance cyan/blue dark mode design language.
+ * Enterprise trust section for OnyxStack Labs — aligned with the modern
+ * high-performance cyan/blue dark mode design language.
  * Icons are optimized inline SVGs — zero external dependency overhead.
  */
-
-// Count-up hook: animates a numeric value from 0 to `end` once the element
-// scrolls into view. Falls back to the static end value if IntersectionObserver
-// isn't available, and respects reduced-motion by skipping straight to `end`.
-function useCountUp(end, { duration = 1600, decimals = 0 } = {}) {
-  const ref = useRef(null);
-  const [value, setValue] = useState(0);
-  const hasRun = useRef(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return undefined;
-
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (prefersReducedMotion) {
-      setValue(end);
-      return undefined;
-    }
-
-    if (typeof IntersectionObserver === 'undefined') {
-      setValue(end);
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasRun.current) {
-            hasRun.current = true;
-            const start = performance.now();
-            const step = (timestamp) => {
-              const elapsed = timestamp - start;
-              const progress = Math.min(elapsed / duration, 1);
-              const eased = 1 - Math.pow(1 - progress, 3);
-              setValue(end * eased);
-              if (progress < 1) {
-                requestAnimationFrame(step);
-              } else {
-                setValue(end);
-              }
-            };
-            requestAnimationFrame(step);
-          }
-        });
-      },
-      { threshold: 0.4 }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [end, duration]);
-
-  const display = decimals > 0 ? value.toFixed(decimals) : Math.round(value).toString();
-  return [ref, display];
-}
 
 // Lightweight inline SVG icon set (highly optimized and modernized)
 const IconCode = (props) => (
@@ -117,30 +58,30 @@ const IconArrowUpRight = (props) => (
   </svg>
 );
 
-// Minimalist inline SVG Icons for Stats Cards
-const IconTrendUp = (props) => (
+// Icons for the "Why Work With Us" value-prop cards (no fabricated metrics)
+const IconUser = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
   </svg>
 );
 
-const IconHeart = (props) => (
+const IconTag = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    <path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.82z" />
+    <circle cx="7.5" cy="7.5" r="1.25" fill="currentColor" stroke="none" />
   </svg>
 );
 
-const IconClock = (props) => (
+const IconZap = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 );
 
-const IconActivity = (props) => (
+const IconMessageCircle = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
   </svg>
 );
 
@@ -261,38 +202,28 @@ export default function Clients() {
     }
   ];
 
-  const [projectsRef, projectsValue] = useCountUp(120);
-  const [satisfactionRef, satisfactionValue] = useCountUp(98);
-  const [responseRef, responseValue] = useCountUp(12);
-
-  const stats = [
-    { 
-      ref: projectsRef, 
-      value: `${projectsValue}+`, 
-      label: 'DELIVERED PROJECTS', 
-      desc: 'Production-ready solutions deployed globally.', 
-      icon: IconTrendUp 
+  // Value-driven differentiators — no fabricated metrics, just what we
+  // actually offer and can honestly stand behind.
+  const whyUs = [
+    {
+      icon: IconUser,
+      label: 'DIRECT ACCESS',
+      desc: 'You work directly with the engineers building your project — no account managers in between.'
     },
-    { 
-      ref: satisfactionRef, 
-      value: `${satisfactionValue}%`, 
-      label: 'CLIENT SATISFACTION', 
-      desc: 'Long-term corporate enterprise partnerships.', 
-      icon: IconHeart 
+    {
+      icon: IconTag,
+      label: 'FIXED-SCOPE PRICING',
+      desc: 'Clear budget ranges upfront, so there are no surprise costs once development starts.'
     },
-    { 
-      ref: responseRef, 
-      value: `<${responseValue}h`, 
-      label: 'RESPONSE LATENCY', 
-      desc: 'SLA-driven technical support responsiveness.', 
-      icon: IconClock 
+    {
+      icon: IconZap,
+      label: 'MODERN STACK',
+      desc: 'Built on React, Firebase, and current AI tooling — nothing outdated bolted together.'
     },
-    { 
-      ref: null, 
-      value: '24/7', 
-      label: 'ONGOING SUPPORT', 
-      desc: 'Continuous infrastructure and code monitoring.', 
-      icon: IconActivity 
+    {
+      icon: IconMessageCircle,
+      label: 'ALWAYS REACHABLE',
+      desc: 'A real person responds to every inquiry — no chatbot loops or ticket queues.'
     }
   ];
 
@@ -321,14 +252,14 @@ export default function Clients() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#06B6D4] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#06B6D4]"></span>
             </span>
-            Trusted By Growing Teams
+            Built for Growing Teams
           </div>
 
           <h2
             id="clients-heading"
             className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-white"
           >
-            Trusted by Businesses{' '}
+            Software Built for Businesses{' '}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#06B6D4] via-[#3B82F6] to-[#2563EB]">
               Building for the Future
             </span>
@@ -386,18 +317,17 @@ export default function Clients() {
           })}
         </div>
 
-        {/* STATISTICS ROW REDESIGNED AS PREMIUM INDEPENDENT ENTERPRISE CARDS */}
+        {/* WHY WORK WITH US — VALUE-PROP CARDS (no fabricated stats) */}
         <div
           className="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-24"
           role="group"
-          aria-label="OnyxStack Labs performance statistics"
+          aria-label="Why work with OnyxStack Labs"
         >
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon;
+          {whyUs.map((item, index) => {
+            const IconComponent = item.icon;
             return (
               <div 
                 key={index} 
-                ref={stat.ref} 
                 className="group relative flex flex-col justify-between p-6 rounded-2xl bg-[#090909] border border-white/[0.06] transition-[transform,border-color,box-shadow] duration-500 ease-out hover:-translate-y-1.5 hover:border-[#06B6D4]/35 hover:shadow-[0_12px_40px_-12px_rgba(6,182,212,0.12)]"
               >
                 {/* Subtle Inner Gradient Finish */}
@@ -415,7 +345,7 @@ export default function Clients() {
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 transition-colors duration-300 group-hover:text-[#06B6D4]">
-                      {stat.label}
+                      {item.label}
                     </span>
                     <div className="text-neutral-500 transition-colors duration-300 group-hover:text-[#06B6D4] group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
                       <IconComponent className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
@@ -423,11 +353,8 @@ export default function Clients() {
                   </div>
 
                   <div className="mt-2">
-                    <span className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-300 tabular-nums tracking-tight">
-                      {stat.value}
-                    </span>
-                    <p className="mt-2 text-xs text-neutral-500 leading-relaxed font-light group-hover:text-neutral-400 transition-colors duration-300">
-                      {stat.desc}
+                    <p className="text-sm text-neutral-300 leading-relaxed font-light group-hover:text-neutral-200 transition-colors duration-300">
+                      {item.desc}
                     </p>
                   </div>
                 </div>
