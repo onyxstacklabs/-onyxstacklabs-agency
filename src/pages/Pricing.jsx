@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
@@ -107,11 +107,13 @@ export default function Pricing({ currentPath, navigateToNode }) {
   ];
 
   // Injects FAQPage structured data (schema.org) into <head> so search
-  // engines and AI answer engines (Google AI Overviews, ChatGPT search,
-  // Perplexity, etc.) can surface these Q&As directly. Built dynamically
-  // from faqCatalog above, so editing the FAQ list keeps this in sync
-  // automatically. Removed on unmount so it never leaks onto other pages.
-  useEffect(() => {
+  // engines and AI answer engines can surface these Q&As directly.
+  // Uses useLayoutEffect instead of useEffect so the script is injected
+  // synchronously before paint — important here because this page is
+  // React.lazy-loaded, and a plain useEffect can run too late for
+  // Googlebot's render pass to pick it up. Built dynamically from
+  // faqCatalog above, so editing the FAQ list keeps this in sync.
+  useLayoutEffect(() => {
     const schema = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
