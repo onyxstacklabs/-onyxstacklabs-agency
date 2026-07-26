@@ -62,7 +62,7 @@ export default function Home({ currentPath, navigateToNode }) {
     email: '',
     phone: '',
     details: '',
-    budget: 'Standard MVP ($1,000 - $2,000)'
+    budget: '$500 - $1,000'
   });
   
   const [submissionState, setSubmissionState] = useState('IDLE'); 
@@ -156,7 +156,7 @@ export default function Home({ currentPath, navigateToNode }) {
         email: '',
         phone: '',
         details: '',
-        budget: 'Standard MVP ($1,000 - $2,000)'
+        budget: '$500 - $1,000'
       });
       setErrors({});
     } else {
