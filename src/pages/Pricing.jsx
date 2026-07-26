@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
@@ -106,36 +106,13 @@ export default function Pricing({ currentPath, navigateToNode }) {
     }
   ];
 
-  // Injects FAQPage structured data (schema.org) into <head> so search
-  // engines and AI answer engines can surface these Q&As directly.
-  // Uses useLayoutEffect instead of useEffect so the script is injected
-  // synchronously before paint — important here because this page is
-  // React.lazy-loaded, and a plain useEffect can run too late for
-  // Googlebot's render pass to pick it up. Built dynamically from
-  // faqCatalog above, so editing the FAQ list keeps this in sync.
-  useLayoutEffect(() => {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": faqCatalog.map((faq) => ({
-        "@type": "Question",
-        "name": faq.q,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.a
-        }
-      }))
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify(schema);
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+  // NOTE: FAQPage structured data for this page's FAQ section now lives as a
+  // static <script type="application/ld+json"> block in index.html instead
+  // of being injected client-side here. This page is React.lazy-loaded, and
+  // a client-injected schema (via useEffect/useLayoutEffect) was unreliable
+  // for crawlers that don't wait on the JS render pass. If the questions/
+  // answers above ever change, update the matching FAQPage block in
+  // index.html to keep them in sync.
 
   const triggerConsultation = () => {
     navigateToNode('/');
