@@ -38,6 +38,7 @@ const SpeedChecker = lazy(() => import('./pages/tools/SpeedChecker'));
 const ProjectEstimator = lazy(() => import('./pages/tools/ProjectEstimator'));
 const AICostCalculator = lazy(() => import('./pages/tools/AICostCalculator'));
 const AIReadinessQuiz = lazy(() => import('./pages/tools/AIReadinessQuiz'));
+const BuildVsBuyCalculator = lazy(() => import('./pages/tools/BuildVsBuyCalculator'));
 
 // ZERO-DELAY EMPTY FALLBACK (Koi splash logo ya screen delay nahi aayega)
 const InvisibleFallback = () => <div className="min-h-screen bg-[#050505]" />;
@@ -150,6 +151,10 @@ export default function App() {
           <Route 
             path="/tools/ai-readiness-quiz" 
             element={<AIReadinessQuiz currentPath={currentPath} navigateToNode={navigateToNode} />} 
+          />
+          <Route 
+            path="/tools/build-vs-buy-calculator" 
+            element={<BuildVsBuyCalculator currentPath={currentPath} navigateToNode={navigateToNode} />} 
           />
 
           <Route 
