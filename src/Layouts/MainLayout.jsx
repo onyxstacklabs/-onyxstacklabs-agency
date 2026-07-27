@@ -6,6 +6,11 @@ import Footer from '../components/Footer';
 // FIXED IMPORT: Transformed from default import to destructured named import to match siteConfig.js
 import { siteConfig } from '../config/siteConfig';
 
+// ANALYTICS: tracks how many visitors actually engage with the WhatsApp
+// entry point — useful for measuring real lead intent, not just clicks
+// that bounce off a page view.
+import { trackEvent } from '../utils/analytics';
+
 // Floating WhatsApp chat button — fixed to the viewport so it stays visible
 // across every page and while scrolling. Links straight to WhatsApp with a
 // pre-filled greeting; no third-party script or backend required.
@@ -15,12 +20,17 @@ function WhatsAppButton() {
     "Hi OnyxStack Labs, I'd like to discuss a project."
   );
 
+  const handleClick = () => {
+    trackEvent('whatsapp_click', { link_location: 'floating_button' });
+  };
+
   return (
     <a
       href={`https://wa.me/${phoneNumber}?text=${prefilledMessage}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
+      onClick={handleClick}
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-[0_8px_24px_rgba(37,211,102,0.35)] hover:scale-110 hover:shadow-[0_10px_30px_rgba(37,211,102,0.5)] active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]"
     >
       <svg
