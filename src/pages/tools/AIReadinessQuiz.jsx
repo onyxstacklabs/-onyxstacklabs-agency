@@ -65,6 +65,13 @@ export default function AIReadinessQuiz({ currentPath, navigateToNode }) {
 
   const band = submitted ? getBand(score) : null;
 
+  // Dynamic share message — only meaningful once a result exists, so the
+  // "Share This Tool" button in ToolLayout shares the actual score instead
+  // of a generic tool description.
+  const shareText = submitted
+    ? `I scored ${score}/${MAX_SCORE} (${band.label}) on OnyxStack Labs' AI Readiness Score. Check yours:`
+    : undefined;
+
   const selectAnswer = (questionId, value) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
@@ -87,6 +94,7 @@ export default function AIReadinessQuiz({ currentPath, navigateToNode }) {
       navigateToNode={navigateToNode}
       title="AI Readiness Score"
       tagline="Answer 8 quick questions to see how ready your business is for AI automation."
+      shareText={shareText}
     >
       {!submitted ? (
         <div className="space-y-6">
