@@ -2,6 +2,10 @@
 import React, { memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// ANALYTICS: tracks outbound engagement (email, phone, WhatsApp, social,
+// featured badges) so real visitor intent shows up in GA4, not just page views.
+import { trackEvent } from '../utils/analytics';
+
 // Static Data Extraction outside render pipeline for maximum performance
 const QUICK_LINKS = [
   { label: 'Home', target: '/' },
@@ -269,14 +273,22 @@ function Footer({ siteConfig }) {
               <div className="space-y-4">
                 <div>
                   <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">Email Portal</span>
-                  <a href={`mailto:${email}`} className="text-[13px] text-white/90 hover:text-[#06B6D4] break-all font-semibold tracking-wide transition-colors duration-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                  <a
+                    href={`mailto:${email}`}
+                    onClick={() => trackEvent('email_click', { link_location: 'footer', email_address: email })}
+                    className="text-[13px] text-white/90 hover:text-[#06B6D4] break-all font-semibold tracking-wide transition-colors duration-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                  >
                     {email}
                   </a>
                 </div>
                 
                 <div>
                   <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">Secure Line</span>
-                  <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-[13px] text-white/90 hover:text-[#06B6D4] font-semibold tracking-wide transition-colors duration-200">
+                  <a
+                    href={`tel:${phone.replace(/\s+/g, '')}`}
+                    onClick={() => trackEvent('phone_click', { link_location: 'footer' })}
+                    className="text-[13px] text-white/90 hover:text-[#06B6D4] font-semibold tracking-wide transition-colors duration-200"
+                  >
                     {phone}
                   </a>
                 </div>
@@ -309,6 +321,7 @@ function Footer({ siteConfig }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={badge.title || badge.name}
+                onClick={() => trackEvent('outbound_click', { link_location: 'footer_badge', destination: badge.name })}
                 className="opacity-90 hover:opacity-100 transition-opacity duration-300 ease-out"
               >
                 <img
@@ -333,6 +346,7 @@ function Footer({ siteConfig }) {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('social_click', { link_location: 'footer', platform: social.name })}
                 className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-[#1E2433] bg-[#090D16]/80 text-slate-400 hover:text-[#06B6D4] hover:border-[#06B6D4]/50 hover:scale-[1.08] hover:shadow-[0_0_18px_rgba(6,182,212,0.25)] active:scale-95 transition-all duration-300 ease-out"
                 aria-label={`Official ${social.name} Link`}
               >
