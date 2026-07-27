@@ -2,9 +2,16 @@
 // Add a new tool here, then create its page in src/pages/tools/
 // and register the route in App.jsx — the hub page updates automatically.
 
-import { Calculator, Gauge, ClipboardCheck, Bot, Sparkles } from 'lucide-react';
+import { Calculator, Gauge, ClipboardCheck, Bot, Sparkles, Scale } from 'lucide-react';
 
 export const toolsConfig = [
+  {
+    slug: 'build-vs-buy-calculator',
+    name: 'Build vs Buy Calculator',
+    tagline: 'Compare custom software costs against SaaS subscriptions to see which saves you more over time.',
+    icon: Scale,
+    status: 'live'
+  },
   {
     slug: 'ai-readiness-quiz',
     name: 'AI Readiness Score',
