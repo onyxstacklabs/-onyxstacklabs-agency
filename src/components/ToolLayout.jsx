@@ -1,10 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { siteConfig } from '../config/siteConfig';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { trackEvent } from '../utils/analytics';
 
-export default function ToolLayout({ currentPath, navigateToNode, title, tagline, children }) {
+export default function ToolLayout({ currentPath, navigateToNode, title, tagline, shareText, children }) {
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPath]);
@@ -37,6 +40,35 @@ export default function ToolLayout({ currentPath, navigateToNode, title, tagline
     }, 150);
   };
 
+  // Shares the tool (and its live result, if the tool passed one via
+  // shareText) using the native share sheet on supported devices, falling
+  // back to copying a link + message to the clipboard everywhere else.
+  // This is the mechanism that lets a visitor's result travel to their
+  // friends/network, driving referral traffic and backlinks to the site.
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const text = shareText || `${title} — ${tagline}`;
+
+    trackEvent('tool_share', { tool: title, method: navigator.share ? 'native' : 'clipboard' });
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url: shareUrl });
+      } catch {
+        // User cancelled the share sheet — no action needed.
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Clipboard API unavailable — silently ignore rather than break the UI.
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-100 font-sans antialiased selection:bg-[#06B6D4] selection:text-black relative overflow-hidden">
 
@@ -61,9 +93,20 @@ export default function ToolLayout({ currentPath, navigateToNode, title, tagline
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4 leading-[1.15]">
             {title}
           </h1>
-          <p className="text-sm md:text-base text-neutral-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-base text-neutral-400 max-w-xl mx-auto leading-relaxed mb-6">
             {tagline}
           </p>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono uppercase tracking-widest font-bold border border-neutral-800 text-neutral-300 hover:border-[#06B6D4]/50 hover:text-[#06B6D4] transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342a4 4 0 100-2.684m0 2.684a4 4 0 000 2.684m0-2.684l6.632-3.316m0 0a4 4 0 105.368-5.368 4 4 0 00-5.368 5.368zm0 8a4 4 0 105.368 5.368 4 4 0 00-5.368-5.368z" />
+            </svg>
+            {copied ? 'Link Copied!' : 'Share This Tool'}
+          </button>
         </section>
 
         <section className="max-w-3xl mx-auto px-6 md:px-12 pb-16">
