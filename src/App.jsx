@@ -5,6 +5,11 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 // LAYOUT SYSTEM IMPORT 
 import MainLayout from './Layouts/MainLayout.jsx';
 
+// ANALYTICS: fires a GA4 pageview on every client-side route change,
+// since this SPA never triggers a native browser page load after the
+// first visit.
+import { trackPageView } from './utils/analytics';
+
 // DIRECT HOME IMPORT (Is se 1-second ka Lazy Loading Splash Screen delay zero ho jayega)
 import Home from './pages/Home';
 
@@ -45,6 +50,12 @@ export default function App() {
   useEffect(() => {
     document.title = "OnyxStack Labs | Enterprise Software & AI Automation Agency";
   }, []);
+
+  // Fires a GA4 pageview every time the route changes — see analytics.js
+  // for why this is necessary in a client-side-routed SPA.
+  useEffect(() => {
+    trackPageView(currentPath, document.title);
+  }, [currentPath]);
 
   const navigateToNode = (path) => {
     navigate(path);
