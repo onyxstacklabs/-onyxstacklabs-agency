@@ -49,7 +49,8 @@ export default function FeaturedProjects() {
       status: "Live",
       liveUrl: "https://onyxstack-tailors.vercel.app", 
       icon: Sparkles,
-      image: tailorsDashboard, 
+      image: tailorsDashboard,
+      imageAlt: "OnyxStack Tailors AI dashboard showing automated conversion of handwritten measurements into digital customer profiles",
       caseStudy: {
         overview: "A specialized AI-powered business optimization system engineered to transform manual, handwritten fashion measurements and order streams into structured digital database layers with zero clerical intervention.",
         businessProblem: "Traditional bespoke tailoring operations heavily rely on manual ledger books and physical tags. Handwritten notes cause critical overheads, measurement tracking errors, and extreme loss of searchable historical customer data records.",
@@ -77,6 +78,7 @@ export default function FeaturedProjects() {
       liveUrl: "https://onyxstack-school.vercel.app",
       icon: Layers,
       image: schoolDashboard,
+      imageAlt: "OnyxStack School ERP dashboard showing student records, attendance tracking, and fee management overview",
       caseStudy: {
         erp: "A high-performance cloud enterprise resource planning ecosystem engineered exclusively for multi-campus institutional logistics management.",
         students: "Complete academic lifecycle node from intake tracking, custom transcript compilation matrices, to active demographic databases.",
@@ -96,6 +98,7 @@ export default function FeaturedProjects() {
       liveUrl: "https://onyxstack-gatepass.vercel.app",
       icon: QrCode,
       image: gatepassDashboard,
+      imageAlt: "OnyxStack GatePass security dashboard showing QR code visitor verification and access logs",
       caseStudy: {
         visitorManagement: "An uncompromised, mission-critical authentication checkpoint engine designed to regulate real-time high-throughput commercial facility traffic.",
         qrVerification: "Instant decryption pipeline extracting custom temporal cryptography keys embedded inside vector QR matrix arrays with sub-50ms verification intervals.",
@@ -112,6 +115,7 @@ export default function FeaturedProjects() {
       liveUrl: "https://onyxstack-lottery.vercel.app",
       icon: Cpu,
       image: lotteryDashboard,
+      imageAlt: "OnyxStack Lottery platform dashboard showing real-time participant entries and draw results",
       caseStudy: {
         realtimeDatabase: "State-synchronized cluster engine optimized to capture, validate, and index hundreds of thousands of entries per second with zero locking overhead.",
         winnerEngine: "Fully verified deterministic randomization mechanics processing participant pools securely using audited linear cryptographic seed distribution algorithms.",
@@ -127,6 +131,7 @@ export default function FeaturedProjects() {
       liveUrl: "https://onyxstack-cricket.vercel.app",
       icon: Activity,
       image: cricketDashboard,
+      imageAlt: "OnyxStack Cricket live scoring dashboard showing ball-by-ball match statistics and analytics",
       caseStudy: {
         realtimeScores: "Sub-millisecond data synchronization pathways updating running player counts, historical vector data tables, and running point metric logs simultaneously.",
         statistics: "Complex analytic framework running instantaneous calculations on dynamic performance variations, historical tracking matrices, and continuous run-rate curves.",
@@ -142,6 +147,7 @@ export default function FeaturedProjects() {
       liveUrl: null,
       icon: Wallet,
       image: mudraDashboard,
+      imageAlt: "OnyxStack Mudra finance dashboard showing secure transaction ledger and account balances",
       caseStudy: {
         financeDashboard: "An elegant, premium banking-grade operations dashboard visualizer built with multi-layered layout arrays tracking dynamic monetary capital allocations.",
         reporting: "Automated continuous synthesis systems compiling raw operational ledger files into clean, fully accessible performance reporting records.",
@@ -301,7 +307,7 @@ export default function FeaturedProjects() {
                     
                     <img 
                       src={project.image} 
-                      alt={`Enterprise platform interface presentation mockup displaying dashboard infrastructure analytics overview for ${project.name}`}
+                      alt={project.imageAlt}
                       loading="lazy"
                       className="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 group-hover:scale-[1.04] transition-all duration-500 ease-out"
                     />
