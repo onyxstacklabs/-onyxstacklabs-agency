@@ -141,7 +141,7 @@ function Footer({ siteConfig }) {
     }
   };
 
-  const email = siteConfig?.contactEmail || 'onyxstacklabs@gmail.com';
+  const email = siteConfig?.contactEmail || 'info@onyxstacklabs.com';
   const website = siteConfig?.website || 'www.onyxstacklabs.com';
   const phone = siteConfig?.contactPhone || '+92 344 5800630';
 
