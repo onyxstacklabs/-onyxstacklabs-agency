@@ -25,7 +25,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-tailors.vercel.app/',
     githubUrl: 'https://onyxstack-tailors.vercel.app/',
     dashboardImage: tailorsDashboard,
+    dashboardAlt: 'OnyxStack Tailors AI dashboard showing automated conversion of handwritten measurements into digital customer profiles',
     supportingImage: tailorsSupporting,
+    supportingAlt: 'OnyxStack Tailors order tracking interface displaying customer measurement history and order status',
     keyFeatures: [
       'Gemini AI-powered handwriting and image recognition engine',
       'Automated conversion of raw measurements into structured data',
@@ -42,7 +44,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-mudra.vercel.app/',
     githubUrl: 'https://onyxstack-mudra.vercel.app/',
     dashboardImage: mudraDashboard,
+    dashboardAlt: 'OnyxStack Mudra finance dashboard showing secure transaction ledger and account balances',
     supportingImage: mudraSupporting,
+    supportingAlt: 'OnyxStack Mudra interface displaying multi-tenant financial reporting and transaction history',
     keyFeatures: [
       'Real-time transaction streaming and balance validation',
       'Multi-tenant accounting and reporting dashboard',
@@ -59,7 +63,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-school.vercel.app/',
     githubUrl: 'https://onyxstack-school.vercel.app/',
     dashboardImage: schoolDashboard,
+    dashboardAlt: 'OnyxStack School ERP dashboard showing student records, attendance tracking, and fee management overview',
     supportingImage: schoolSupporting,
+    supportingAlt: 'OnyxStack School ERP interface displaying real-time attendance and administrative reporting tools',
     keyFeatures: [
       'Real-time student tracking and academic records management',
       'Centralized administrative control dashboard',
@@ -76,7 +82,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-gatepass.vercel.app/',
     githubUrl: 'https://onyxstack-gatepass.vercel.app/',
     dashboardImage: gatepassDashboard,
+    dashboardAlt: 'OnyxStack GatePass security dashboard showing QR code visitor verification and access logs',
     supportingImage: gatepassSupporting,
+    supportingAlt: 'OnyxStack GatePass interface displaying dual-camera visitor authentication and entry history',
     keyFeatures: [
       'Dual-camera live visitor authentication',
       'Encrypted QR-based access verification',
@@ -93,7 +101,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-lottery.vercel.app/',
     githubUrl: 'https://onyxstack-lottery.vercel.app/',
     dashboardImage: lotteryDashboard,
+    dashboardAlt: 'OnyxStack Lottery platform dashboard showing real-time participant entries and draw results',
     supportingImage: lotterySupporting,
+    supportingAlt: 'OnyxStack Lottery interface displaying live engagement analytics and winner selection results',
     keyFeatures: [
       'Mathematically verified random selection engine',
       'Real-time participant engagement visualizer',
@@ -110,7 +120,9 @@ const ECOSYSTEM_PROJECTS = [
     liveUrl: 'https://onyxstack-cricket.vercel.app/',
     githubUrl: 'https://onyxstack-cricket.vercel.app/',
     dashboardImage: cricketDashboard,
+    dashboardAlt: 'OnyxStack Cricket live scoring dashboard showing ball-by-ball match statistics and analytics',
     supportingImage: cricketSupporting,
+    supportingAlt: 'OnyxStack Cricket interface displaying tournament bracket standings and player performance charts',
     keyFeatures: [
       'Ball-by-ball live scoring updates',
       'Dynamic tournament bracket analytics',
@@ -345,7 +357,7 @@ export default function Portfolio() {
                 {/* Dashboard Image — only the very first card's primary dashboard image gets eager/high-priority loading */}
                 <ProjectImage
                   src={project.dashboardImage}
-                  alt={`${project.name} dashboard interface preview`}
+                  alt={project.dashboardAlt}
                   onOpen={openLightbox}
                   priority={isFirstCard}
                 />
@@ -353,7 +365,7 @@ export default function Portfolio() {
                 {/* Supporting Image — always lazy-loaded regardless of card position, since this section is below-the-fold on Home */}
                 <ProjectImage
                   src={project.supportingImage}
-                  alt={`${project.name} supporting interface preview`}
+                  alt={project.supportingAlt}
                   onOpen={openLightbox}
                 />
 
