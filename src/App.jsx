@@ -43,6 +43,8 @@ const BuildVsBuyCalculator = lazy(() => import('./pages/tools/BuildVsBuyCalculat
 // ZERO-DELAY EMPTY FALLBACK (Koi splash logo ya screen delay nahi aayega)
 const InvisibleFallback = () => <div className="min-h-screen bg-[#050505]" />;
 
+const CANONICAL_DOMAIN = 'https://onyxstacklabs.com';
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,6 +58,27 @@ export default function App() {
   // for why this is necessary in a client-side-routed SPA.
   useEffect(() => {
     trackPageView(currentPath, document.title);
+  }, [currentPath]);
+
+  // FIX: this is a client-side-routed SPA, so every route serves the exact
+  // same index.html — including its static <link rel="canonical"> tag,
+  // which was hardcoded to the homepage URL. That told Google every page
+  // (blog, pricing, careers, etc.) was actually a duplicate of the
+  // homepage, which is what caused the "Redirect error" / "Page with
+  // redirect" indexing issues in Search Console. This keeps the canonical
+  // tag in sync with the real current URL on every route change, the same
+  // way ToolLayout.jsx already keeps document.title in sync per tool.
+  useEffect(() => {
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalTag);
+    }
+    const canonicalUrl = currentPath === '/'
+      ? `${CANONICAL_DOMAIN}/`
+      : `${CANONICAL_DOMAIN}${currentPath}`;
+    canonicalTag.setAttribute('href', canonicalUrl);
   }, [currentPath]);
 
   const navigateToNode = (path) => {
