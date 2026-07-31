@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ToolLayout from '../components/ToolLayout';
 import { AuditSchema } from '../components/AuditSchema';
 import { AuditScoreRing } from '../components/AuditScoreRing';
 import { AuditExportModal } from '../components/AuditExportModal';
 import { executeAudit } from '../components/auditEngine';
 
-export const AIWebsiteAuditPage = () => {
+export const AIWebsiteAuditPage = ({ currentPath, navigateToNode }) => {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -51,37 +52,22 @@ export const AIWebsiteAuditPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#FFFFFF] font-sans selection:bg-[#06B6D4]/30">
+    <ToolLayout
+      currentPath={currentPath}
+      navigateToNode={navigateToNode}
+      title="AI Website Audit Tool"
+      tagline="Audit your website's SEO, performance, accessibility, AI readiness and technical health in seconds."
+      shareText="I just audited my website using the OnyxStack Labs AI Website Audit Tool!"
+    >
       <AuditSchema />
 
-      <main className="max-w-[1280px] mx-auto px-5 lg:px-8 py-[120px]">
-        
-        {/* HERO SECTION */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-[#06B6D4] text-xs font-semibold uppercase tracking-widest mb-6">
-            ✨ Enterprise AI & Technical Engine
-          </div>
-
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
-            AI Website Audit Tool
-          </h1>
-
-          <p className="text-base md:text-lg text-[#A1A1AA] leading-relaxed">
-            Audit your website's SEO, performance, accessibility, AI readiness and technical health in seconds.
-          </p>
-        </motion.section>
-
+      <div className="space-y-8">
         {/* INPUT FORM CARD */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="max-w-2xl mx-auto bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 shadow-2xl hover:border-[#06B6D4]/40 transition-all duration-300 mb-20"
+          transition={{ duration: 0.3 }}
+          className="bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-6 md:p-8 shadow-2xl hover:border-[#06B6D4]/40 transition-all duration-300"
         >
           <form onSubmit={handleStartAudit} className="space-y-5">
             <div className="relative">
@@ -102,7 +88,7 @@ export const AIWebsiteAuditPage = () => {
             <button
               type="submit"
               disabled={isLoading || !url.trim()}
-              className="w-full h-[56px] bg-[#06B6D4] hover:bg-[#06B6D4]/90 text-black font-bold text-base rounded-xl transition-all duration-250 transform hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-[#06B6D4]/20 flex items-center justify-center"
+              className="w-full h-[56px] bg-[#06B6D4] hover:bg-[#06B6D4]/90 text-black font-bold text-base rounded-xl transition-all duration-250 transform hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-[#06B6D4]/20 flex items-center justify-center cursor-pointer"
             >
               {isLoading ? 'Running Technical Diagnostics...' : 'Analyze Website'}
             </button>
@@ -123,7 +109,7 @@ export const AIWebsiteAuditPage = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="max-w-xl mx-auto bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 text-center my-12 shadow-2xl"
+              className="bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 text-center my-8 shadow-2xl"
             >
               <div className="w-12 h-12 border-4 border-[#06B6D4]/20 border-t-[#06B6D4] rounded-full animate-spin mx-auto mb-6" />
               <p className="text-white font-semibold text-lg mb-2">{stageMessage}</p>
@@ -145,7 +131,7 @@ export const AIWebsiteAuditPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-16"
+            className="space-y-12 pt-4"
           >
             {/* REPORT HEADER SUMMARY */}
             <div className="bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 hover:border-[#06B6D4]/30 transition-all duration-300">
@@ -159,8 +145,9 @@ export const AIWebsiteAuditPage = () => {
                 <AuditScoreRing score={report.overallScore} size={150} />
                 
                 <button
+                  type="button"
                   onClick={() => setIsExportOpen(true)}
-                  className="py-3 px-5 bg-transparent border border-[#06B6D4] text-[#06B6D4] hover:bg-[#06B6D4] hover:text-black font-semibold rounded-xl transition-all duration-250 text-sm flex items-center gap-2"
+                  className="py-3 px-5 bg-transparent border border-[#06B6D4] text-[#06B6D4] hover:bg-[#06B6D4] hover:text-black font-semibold rounded-xl transition-all duration-250 text-sm flex items-center gap-2 cursor-pointer"
                 >
                   📥 Export / Share Report
                 </button>
@@ -219,7 +206,7 @@ export const AIWebsiteAuditPage = () => {
                     <div className="pt-4 border-t border-white/[0.08]">
                       <h4 className="text-xs font-semibold uppercase text-[#A1A1AA] tracking-wider mb-3">Action Required</h4>
                       {cat.recommendations.map((rec, rIdx) => (
-                        <div key={rIdx} className="bg-[#050505] p-4 rounded-xl border border-white/[0.08] space-y-2">
+                        <div key={rIdx} className="bg-[#050505] p-4 rounded-xl border border-white/[0.08] space-y-2 mb-3 last:mb-0">
                           <div className="flex items-center justify-between">
                             <span className="text-white text-sm font-semibold">{rec.issue}</span>
                             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
@@ -237,33 +224,17 @@ export const AIWebsiteAuditPage = () => {
                 </motion.div>
               ))}
             </div>
-
-            {/* CALL TO ACTION CONVERSION BLOCK */}
-            <div className="bg-[#0F172A]/65 backdrop-blur-md border border-[#06B6D4]/30 rounded-[20px] p-8 lg:p-12 text-center space-y-6 shadow-2xl">
-              <h3 className="text-2xl md:text-3xl font-bold text-white">
-                Need Help Fixing These Issues?
-              </h3>
-              <p className="text-[#A1A1AA] max-w-xl mx-auto text-sm md:text-base">
-                Our enterprise software and SEO engineering team can optimize your Core Web Vitals, fix architectural flaws, and implement GEO schemas.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                <a
-                  href="/contact"
-                  className="w-full sm:w-auto py-4 px-8 bg-[#06B6D4] hover:bg-[#06B6D4]/90 text-black font-bold rounded-xl transition-all duration-250 transform hover:scale-[1.03] shadow-lg shadow-[#06B6D4]/20 text-center"
-                >
-                  Book Free Technical Consultation
-                </a>
-              </div>
-            </div>
           </motion.div>
         )}
-      </main>
+      </div>
 
       <AuditExportModal 
         isOpen={isExportOpen} 
         onClose={() => setIsExportOpen(false)} 
         auditData={report} 
       />
-    </div>
+    </ToolLayout>
   );
 };
+
+export default AIWebsiteAuditPage;
