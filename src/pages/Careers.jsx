@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 // LIVE DATA CORE & FIREBASE CONFIG IMPORTS
-import { siteConfig } from '../config/siteConfig';
 import { db } from '../config/firebase'; // Aapka existing firebase setup
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function Careers({ currentPath, navigateToNode }) {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -37,7 +32,7 @@ export default function Careers({ currentPath, navigateToNode }) {
 
   // DISCORD PIPELINE NOTIFICATION DISPATCHER
   const dispatchDiscordNotification = async (payload) => {
-    const DISCORD_WEBHOOK_URL = siteConfig?.discordWebhookUrl || "YOUR_DISCORD_WEBHOOK_URL_HERE";
+    const DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE";
     
     const embedData = {
       username: "OnyxStack Recruitment Bot",
@@ -109,7 +104,7 @@ export default function Careers({ currentPath, navigateToNode }) {
     }
   };
 
-  // Static Data Structural Matrices (Culture, Jobs, Process, Benefits, FAQs)
+  // Static Data Structural Matrices
   const cultureVectors = [
     { title: "Pure Innovation", desc: "We actively reject rigid copy-paste code patterns. Our team continuously develops greenfield serverless systems and custom telemetry dashboards." },
     { title: "Vertical Growth Loops", desc: "Clear engineering advancement paths designed to elevate mid-tier developers to senior platform architects based on structural performance metrics." },
@@ -158,8 +153,6 @@ export default function Careers({ currentPath, navigateToNode }) {
       
       {/* BRAND BG ELEMENTS */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[850px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.06),transparent_65%)] pointer-events-none z-0" />
-
-      <Navbar currentPath={currentPath} activeSection="" navigateToNode={navigateToNode} siteConfig={siteConfig} />
 
       <div className="relative z-10 enterprise-recruitment-view-scope">
         {/* HERO SECTION */}
@@ -354,8 +347,6 @@ export default function Careers({ currentPath, navigateToNode }) {
           </div>
         </div>
       )}
-
-      <Footer siteConfig={siteConfig} />
     </div>
   );
 }
