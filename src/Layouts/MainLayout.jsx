@@ -1,11 +1,10 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-
-// ANALYTICS: tracks how many visitors engage with WhatsApp entry point
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { siteConfig } from '../config/siteConfig';
 import { trackEvent } from '../utils/analytics';
 
-// Floating WhatsApp chat button — fixed to the viewport so it stays visible
-// across every page and while scrolling.
 function WhatsAppButton() {
   const phoneNumber = '923445800630';
   const prefilledMessage = encodeURIComponent(
@@ -37,22 +36,24 @@ function WhatsAppButton() {
   );
 }
 
-/**
- * MainLayout
- * Clean layout frame wrapping the child routes without duplicating headers or footers.
- */
-export default function MainLayout() {
+export default function MainLayout({ currentPath, activeSection, navigateToNode }) {
   return (
     <div className="relative min-h-screen bg-[#050505] text-white flex flex-col overflow-x-hidden antialiased selection:bg-[#06B6D4]/30 selection:text-white">
-      {/* Background Micro-Grid Ambient Mesh */}
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" aria-hidden="true" />
 
-      {/* Primary Routing Portal Frame */}
+      <Navbar
+        currentPath={currentPath}
+        activeSection={activeSection}
+        navigateToNode={navigateToNode}
+        siteConfig={siteConfig}
+      />
+
       <main className="flex-grow w-full relative z-10 focus:outline-none">
         <Outlet />
       </main>
 
-      {/* Floating WhatsApp Chat Entry Point */}
+      <Footer siteConfig={siteConfig} />
+
       <WhatsAppButton />
     </div>
   );
