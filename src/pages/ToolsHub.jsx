@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SearchCheck } from 'lucide-react';
-import { siteConfig } from '../config/siteConfig';
 import { toolsConfig as rawToolsConfig } from '../config/toolsConfig';
 
 export default function ToolsHub({ currentPath, navigateToNode }) {
