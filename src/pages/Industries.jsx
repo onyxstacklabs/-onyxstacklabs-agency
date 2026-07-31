@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// LIVE DATA CORE IMPORTS
-import { siteConfig } from '../config/siteConfig';
-
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -176,14 +169,6 @@ export default function Industries({ currentPath, navigateToNode }) {
       <div className="absolute top-[800px] left-1/4 w-[400px] h-[400px] bg-blue-500/[0.03] blur-[140px] pointer-events-none" />
       <div className="absolute top-[1500px] right-0 w-[600px] h-[600px] bg-cyan-500/[0.03] blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[400px] left-0 w-[500px] h-[500px] bg-indigo-600/[0.02] blur-[150px] pointer-events-none" />
-
-      {/* FIXED NAVIGATION FRAME INTEGRATION */}
-      <Navbar 
-        currentPath={currentPath} 
-        activeSection="" 
-        navigateToNode={navigateToNode} 
-        siteConfig={siteConfig} 
-      />
 
       {/* BODY CONTENT WRAPPER */}
       <main className="relative z-10 orchestration-industries-scope" id="main-content">
@@ -495,9 +480,6 @@ export default function Industries({ currentPath, navigateToNode }) {
         </section>
 
       </main>
-
-      {/* CORE GLOBAL FOOTER INTEGRATION EXPOSURE */}
-      <Footer siteConfig={siteConfig} />
 
     </div>
   );
