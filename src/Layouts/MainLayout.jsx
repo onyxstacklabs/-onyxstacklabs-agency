@@ -41,6 +41,7 @@ export default function MainLayout({ currentPath, activeSection, navigateToNode 
     <div className="relative min-h-screen bg-[#050505] text-white flex flex-col overflow-x-hidden antialiased selection:bg-[#06B6D4]/30 selection:text-white">
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" aria-hidden="true" />
 
+      {/* Global Navbar rendered ONLY here */}
       <Navbar
         currentPath={currentPath}
         activeSection={activeSection}
