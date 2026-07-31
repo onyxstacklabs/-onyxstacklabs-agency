@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { SearchCheck } from 'lucide-react';
 import { siteConfig } from '../config/siteConfig';
-import { toolsConfig } from '../config/toolsConfig';
+import { toolsConfig as rawToolsConfig } from '../config/toolsConfig';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -16,6 +17,21 @@ export default function ToolsHub({ currentPath, navigateToNode }) {
       document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
     }, 150);
   };
+
+  // Ensure AI Website Audit Tool is always present in grid list
+  const hasAuditTool = rawToolsConfig.some((t) => t.slug === 'ai-website-audit');
+  const toolsConfig = hasAuditTool
+    ? rawToolsConfig
+    : [
+        ...rawToolsConfig,
+        {
+          slug: 'ai-website-audit',
+          name: 'AI Website Audit Tool',
+          tagline: "Audit your website's SEO, performance, accessibility, AI readiness and technical health.",
+          status: 'live',
+          icon: SearchCheck,
+        },
+      ];
 
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-100 font-sans antialiased selection:bg-[#06B6D4] selection:text-black relative overflow-hidden">
