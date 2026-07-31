@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// LIVE DATA CORE IMPORTS
-import { siteConfig } from '../config/siteConfig';
-
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-
 export default function Pricing({ currentPath, navigateToNode }) {
   const [activeFaq, setActiveFaq] = useState(null);
 
@@ -106,14 +99,6 @@ export default function Pricing({ currentPath, navigateToNode }) {
     }
   ];
 
-  // NOTE: FAQPage structured data for this page's FAQ section now lives as a
-  // static <script type="application/ld+json"> block in index.html instead
-  // of being injected client-side here. This page is React.lazy-loaded, and
-  // a client-injected schema (via useEffect/useLayoutEffect) was unreliable
-  // for crawlers that don't wait on the JS render pass. If the questions/
-  // answers above ever change, update the matching FAQPage block in
-  // index.html to keep them in sync.
-
   const triggerConsultation = () => {
     navigateToNode('/');
     setTimeout(() => {
@@ -126,13 +111,6 @@ export default function Pricing({ currentPath, navigateToNode }) {
       
       {/* AMBIENT RADIAL GRAPHICS */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[750px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.06),transparent_60%)] pointer-events-none z-0" />
-
-      <Navbar 
-        currentPath={currentPath} 
-        activeSection="" 
-        navigateToNode={navigateToNode} 
-        siteConfig={siteConfig} 
-      />
 
       <div className="relative z-10 execution-pricing-scope">
         
@@ -161,7 +139,7 @@ export default function Pricing({ currentPath, navigateToNode }) {
                 className={`group p-6 md:p-8 rounded-2xl border bg-neutral-950/50 flex flex-col justify-between relative transition-all duration-500 hover:-translate-y-2 ${tier.accent}`}
               >
                 {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#06B6D4] text-black text-[10px] font-mono font-bold uppercase tracking-widest shadow-lg shadow-[#06B6D4]/20 white-space-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#06B6D4] text-black text-[10px] font-mono font-bold uppercase tracking-widest shadow-lg shadow-[#06B6D4]/20 whitespace-nowrap">
                     Recommended
                   </div>
                 )}
@@ -272,7 +250,6 @@ export default function Pricing({ currentPath, navigateToNode }) {
 
       </div>
 
-      <Footer siteConfig={siteConfig} />
     </div>
   );
 }
