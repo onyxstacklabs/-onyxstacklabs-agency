@@ -6,8 +6,24 @@ import { useNavigate } from 'react-router-dom';
  * Premium, enterprise-grade 404 error experience engineered with fluid ambient meshes,
  * micro-interactions, complete keyboard navigation accessibility, and clean SEO handling.
  */
-export default function NotFound() {
-  const navigate = useNavigate();
+export default function NotFound({ navigateToNode }) {
+  let navigate;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    // Fallback if component is rendered outside standard React Router provider
+    navigate = null;
+  }
+
+  const handleNavigation = (path) => {
+    if (navigateToNode) {
+      navigateToNode(path);
+    } else if (navigate) {
+      navigate(path);
+    } else {
+      window.location.href = path;
+    }
+  };
 
   // Dynamically update context title for search spiders and screen readers
   useEffect(() => {
@@ -49,7 +65,7 @@ export default function NotFound() {
           
           {/* Primary Directive: Return to Home Node */}
           <button
-            onClick={() => navigate('/')}
+            onClick={() => handleNavigation('/')}
             className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-black font-semibold text-sm rounded-lg shadow-[0_4px_20px_rgba(0,242,254,0.15)] hover:shadow-[0_4px_25px_rgba(0,242,254,0.3)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#00f2fe] focus:ring-offset-2 focus:ring-offset-black"
             aria-label="Return to core home dashboard application interface"
           >
@@ -58,7 +74,7 @@ export default function NotFound() {
 
           {/* Secondary Directive: Communication Ingress Tunnel */}
           <button
-            onClick={() => navigate('/contact')}
+            onClick={() => handleNavigation('/contact')}
             className="w-full sm:w-auto px-8 py-3.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/80 text-white font-medium text-sm rounded-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:ring-offset-2 focus:ring-offset-black"
             aria-label="Contact support engineering matrix pipeline"
           >
