@@ -5,15 +5,13 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 // LAYOUT SYSTEM IMPORT 
 import MainLayout from './Layouts/MainLayout.jsx';
 
-// ANALYTICS: fires a GA4 pageview on every client-side route change,
-// since this SPA never triggers a native browser page load after the
-// first visit.
+// ANALYTICS
 import { trackPageView } from './utils/analytics';
 
-// DIRECT HOME IMPORT (Is se 1-second ka Lazy Loading Splash Screen delay zero ho jayega)
+// DIRECT HOME IMPORT
 import Home from './pages/Home';
 
-// LAZY LOADED SECONDARY PAGES (In ki waja se initial landing delay nahi aayega)
+// LAZY LOADED SECONDARY PAGES
 const OnyxAdmin = lazy(() => import('./pages/OnyxAdmin'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
@@ -31,7 +29,7 @@ const TermsConditions = lazy(() => import('./pages/TermsConditions'));
 const ThankYou = lazy(() => import('./pages/ThankYou'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// TOOLS HUB (Interactive free tools section)
+// TOOLS HUB
 const ToolsHub = lazy(() => import('./pages/ToolsHub'));
 const ROICalculator = lazy(() => import('./pages/tools/ROICalculator'));
 const SpeedChecker = lazy(() => import('./pages/tools/SpeedChecker'));
@@ -41,7 +39,6 @@ const AIReadinessQuiz = lazy(() => import('./pages/tools/AIReadinessQuiz'));
 const BuildVsBuyCalculator = lazy(() => import('./pages/tools/BuildVsBuyCalculator'));
 const AIWebsiteAuditPage = lazy(() => import('./pages/AIWebsiteAudit').then(module => ({ default: module.AIWebsiteAuditPage })));
 
-// ZERO-DELAY EMPTY FALLBACK (Koi splash logo ya screen delay nahi aayega)
 const InvisibleFallback = () => <div className="min-h-screen bg-[#050505]" />;
 
 const CANONICAL_DOMAIN = 'https://onyxstacklabs.com';
@@ -55,20 +52,10 @@ export default function App() {
     document.title = "OnyxStack Labs | Enterprise Software & AI Automation Agency";
   }, []);
 
-  // Fires a GA4 pageview every time the route changes — see analytics.js
-  // for why this is necessary in a client-side-routed SPA.
   useEffect(() => {
     trackPageView(currentPath, document.title);
   }, [currentPath]);
 
-  // FIX: this is a client-side-routed SPA, so every route serves the exact
-  // same index.html — including its static <link rel="canonical"> tag,
-  // which was hardcoded to the homepage URL. That told Google every page
-  // (blog, pricing, careers, etc.) was actually a duplicate of the
-  // homepage, which is what caused the "Redirect error" / "Page with
-  // redirect" indexing issues in Search Console. This keeps the canonical
-  // tag in sync with the real current URL on every route change, the same
-  // way ToolLayout.jsx already keeps document.title in sync per tool.
   useEffect(() => {
     let canonicalTag = document.querySelector('link[rel="canonical"]');
     if (!canonicalTag) {
@@ -94,6 +81,7 @@ export default function App() {
           element={<OnyxAdmin navigateToNode={navigateToNode} />} 
         />
 
+        {/* MAIN LAYOUT WRAPPER FOR STANDARD PAGES */}
         <Route 
           element={
             <MainLayout 
@@ -103,7 +91,6 @@ export default function App() {
             />
           }
         >
-          {/* HOME PAGE IS RENDERED INSTANTLY WITHOUT SUSPENSE DELAY */}
           <Route 
             index 
             element={<Home currentPath={currentPath} navigateToNode={navigateToNode} />} 
@@ -140,12 +127,10 @@ export default function App() {
             path="/blog" 
             element={<Blog currentPath={currentPath} navigateToNode={navigateToNode} />} 
           />
-
           <Route 
             path="/blog/:slug" 
             element={<BlogArticle currentPath={currentPath} navigateToNode={navigateToNode} />} 
           />
-
           <Route 
             path="/careers" 
             element={<Careers currentPath={currentPath} navigateToNode={navigateToNode} />} 
