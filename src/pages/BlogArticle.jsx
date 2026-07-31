@@ -50,7 +50,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       } catch (err) {
         console.error("Failed fetching structural node logs:", err);
         navigate('/404', { replace: true });
-      } font-mono {
+      } finally {
         setLoading(false);
       }
     };
