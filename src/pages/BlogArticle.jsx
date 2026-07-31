@@ -6,9 +6,6 @@ import { motion } from 'framer-motion';
 // LIVE DATA CORE IMPORTS
 import { db } from '../config/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { siteConfig } from '../config/siteConfig';
 
 const fxFadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -53,7 +50,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       } catch (err) {
         console.error("Failed fetching structural node logs:", err);
         navigate('/404', { replace: true });
-      } finally {
+      } font-mono {
         setLoading(false);
       }
     };
@@ -104,7 +101,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       const trimmed = para.trim();
       if (!trimmed) return null;
 
-      // 1. Heading Detection (Strikethrough or custom indicator like ### or explicit capitalization with trailing colon)
+      // 1. Heading Detection
       if (trimmed.startsWith('###') || (trimmed.endsWith(':') && trimmed.length < 60 && !trimmed.startsWith('http'))) {
         const cleanHeading = trimmed.replace('###', '').trim();
         return (
@@ -114,7 +111,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
         );
       }
 
-      // 2. Code Block Detection (If line starts with code tags or looks technical)
+      // 2. Code Block Detection
       if (trimmed.startsWith('//') && trimmed.length > 30) {
         return (
           <pre key={index} className="bg-neutral-950 border border-neutral-900 rounded-xl p-4 font-mono text-xs text-cyan-400 overflow-x-auto my-4 leading-relaxed selection:bg-cyan-500/20">
@@ -160,8 +157,6 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       
       {/* BRAND STRUCTURAL LIGHTING FIELDS */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.08),transparent_50%)] pointer-events-none z-0" />
-      
-      <Navbar currentPath={currentPath} activeSection="" navigateToNode={navigateToNode} siteConfig={siteConfig} />
 
       <main className="relative z-10 max-w-4xl mx-auto px-6 pt-40 pb-24">
         <motion.article initial="hidden" animate="visible" variants={fxFadeUp}>
@@ -236,8 +231,6 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
 
         </motion.article>
       </main>
-
-      <Footer siteConfig={siteConfig} />
     </div>
   );
 }
