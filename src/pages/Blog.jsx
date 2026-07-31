@@ -8,10 +8,6 @@ import { siteConfig } from '../config/siteConfig';
 import { db } from '../config/firebase'; 
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -131,9 +127,6 @@ export default function Blog({ currentPath, navigateToNode }) {
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-[linear-gradient(to_right,#1f1f1f12_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f12_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0 opacity-70 border-b border-neutral-900/40" />
       <div className="absolute top-[1200px] right-0 w-[500px] h-[500px] bg-cyan-500/[0.015] blur-[140px] pointer-events-none" />
       <div className="absolute bottom-[600px] left-0 w-[600px] h-[600px] bg-blue-600/[0.02] blur-[180px] pointer-events-none" />
-
-      {/* DETACHED NAVIGATION FRAME INSULATION */}
-      <Navbar currentPath={currentPath} activeSection="" navigateToNode={navigateToNode} siteConfig={siteConfig} />
 
       {/* COMPONENT STREAM CONTENT BODY */}
       <main className="relative z-10 scalable-content-blog-scope" id="main-content">
@@ -404,8 +397,6 @@ export default function Blog({ currentPath, navigateToNode }) {
         </section>
 
       </main>
-
-      <Footer siteConfig={siteConfig} />
     </div>
   );
 }
