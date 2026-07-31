@@ -1,11 +1,8 @@
 import React, { useEffect } from 'react';
 
-// LIVE DATA CORE IMPORTS
-import { siteConfig } from '../config/siteConfig';
-
 export default function ThankYou({ currentPath, navigateToNode }) {
   
-  // Set explicit subview window focus on mounting phase and sync SEO headers
+  // Explicit subview scroll reset and SEO header synchronization
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "Thank You | OnyxStack Labs";
@@ -82,7 +79,7 @@ export default function ThankYou({ currentPath, navigateToNode }) {
         {/* SECTION 2: CONFIRMATION CARD */}
         <section className="mb-20">
           <div className="max-w-2xl mx-auto p-8 rounded-3xl border border-neutral-800 bg-neutral-900/30 backdrop-blur-md shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#06B6D4]/5 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#06B6D4]/5 to-transparent pointer-events-none" />
             <div className="relative z-10 space-y-6 text-center">
               <h2 className="text-xl font-bold text-white">Estimated Response Time</h2>
               <div className="text-4xl font-mono font-bold text-[#06B6D4]">24 - 48 Hours</div>
@@ -139,14 +136,14 @@ export default function ThankYou({ currentPath, navigateToNode }) {
           <h2 className="text-2xl font-bold text-white mb-8">Ready to explore more?</h2>
           <div className="flex flex-wrap justify-center gap-4">
             <button 
-              onClick={() => navigateToNode('/portfolio')}
-              className="bg-white hover:bg-neutral-200 text-black px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105"
+              onClick={() => navigateToNode && navigateToNode('/portfolio')}
+              className="bg-white hover:bg-neutral-200 text-black px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95"
             >
               View Portfolio
             </button>
             <button 
-              onClick={() => navigateToNode('/')}
-              className="bg-neutral-900 border border-neutral-700 hover:border-[#06B6D4] text-white px-8 py-4 rounded-full font-bold transition-all"
+              onClick={() => navigateToNode && navigateToNode('/')}
+              className="bg-neutral-900 border border-neutral-700 hover:border-[#06B6D4] text-white px-8 py-4 rounded-full font-bold transition-all active:scale-95"
             >
               Back to Home
             </button>
