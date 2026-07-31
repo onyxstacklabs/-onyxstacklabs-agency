@@ -51,27 +51,27 @@ export const AIWebsiteAuditPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#05070B] text-slate-100 font-sans selection:bg-[#00D4FF]/30">
+    <div className="min-h-screen bg-[#050505] text-[#FFFFFF] font-sans selection:bg-[#06B6D4]/30">
       <AuditSchema />
 
-      <main className="max-w-[1280px] mx-auto px-5 lg:px-8 py-16 lg:py-24">
+      <main className="max-w-[1280px] mx-auto px-5 lg:px-8 py-[120px]">
         
         {/* HERO SECTION */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-          className="text-center max-w-3xl mx-auto mb-12"
+          transition={{ duration: 0.3 }}
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-[#06B6D4] text-xs font-semibold uppercase tracking-widest mb-6">
             ✨ Enterprise AI & Technical Engine
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
             AI Website Audit Tool
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-400 leading-relaxed">
+          <p className="text-base md:text-lg text-[#A1A1AA] leading-relaxed">
             Audit your website's SEO, performance, accessibility, AI readiness and technical health in seconds.
           </p>
         </motion.section>
@@ -80,17 +80,17 @@ export const AIWebsiteAuditPage = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.1 }}
-          className="max-w-2xl mx-auto bg-[#0F172A] border border-white/[0.08] rounded-[20px] p-6 lg:p-8 shadow-2xl backdrop-blur-xl mb-12"
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="max-w-2xl mx-auto bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 shadow-2xl hover:border-[#06B6D4]/40 transition-all duration-300 mb-20"
         >
-          <form onSubmit={handleStartAudit} className="space-y-4">
+          <form onSubmit={handleStartAudit} className="space-y-5">
             <div className="relative">
               <input
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Enter domain or URL (e.g., onyxstacklabs.com)"
-                className="w-full py-4 px-5 bg-[#05070B] border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF] transition-all text-base"
+                className="w-full h-[56px] px-5 bg-[#050505] border border-white/[0.08] rounded-xl text-white placeholder-[#71717A] focus:outline-none focus:border-[#06B6D4] focus:ring-1 focus:ring-[#06B6D4] transition-all text-base"
                 disabled={isLoading}
               />
             </div>
@@ -102,14 +102,14 @@ export const AIWebsiteAuditPage = () => {
             <button
               type="submit"
               disabled={isLoading || !url.trim()}
-              className="w-full py-4 px-6 bg-gradient-to-r from-[#00D4FF] to-[#2563EB] hover:opacity-95 text-slate-950 font-bold text-lg rounded-xl transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-lg shadow-cyan-500/10"
+              className="w-full h-[56px] bg-[#06B6D4] hover:bg-[#06B6D4]/90 text-black font-bold text-base rounded-xl transition-all duration-250 transform hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-[#06B6D4]/20 flex items-center justify-center"
             >
               {isLoading ? 'Running Technical Diagnostics...' : 'Analyze Website'}
             </button>
           </form>
 
           {/* Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-6 pt-6 border-t border-white/[0.08] text-xs text-slate-400 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-6 pt-6 border-t border-white/[0.08] text-xs text-[#A1A1AA] font-medium">
             <span className="flex items-center gap-1.5">⚡ Fast Execution</span>
             <span className="flex items-center gap-1.5">🔒 100% Secure</span>
             <span className="flex items-center gap-1.5">💳 No Signup Required</span>
@@ -123,13 +123,13 @@ export const AIWebsiteAuditPage = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="max-w-xl mx-auto bg-[#0F172A] border border-white/[0.08] rounded-[20px] p-8 text-center my-12 shadow-2xl"
+              className="max-w-xl mx-auto bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 text-center my-12 shadow-2xl"
             >
-              <div className="w-12 h-12 border-4 border-[#00D4FF]/20 border-t-[#00D4FF] rounded-full animate-spin mx-auto mb-6" />
+              <div className="w-12 h-12 border-4 border-[#06B6D4]/20 border-t-[#06B6D4] rounded-full animate-spin mx-auto mb-6" />
               <p className="text-white font-semibold text-lg mb-2">{stageMessage}</p>
-              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-4">
+              <div className="w-full bg-[#050505] rounded-full h-2 overflow-hidden mt-4 border border-white/[0.08]">
                 <motion.div 
-                  className="bg-gradient-to-r from-[#00D4FF] to-[#2563EB] h-full"
+                  className="bg-gradient-to-r from-[#06B6D4] to-[#2563EB] h-full"
                   initial={{ width: '0%' }}
                   animate={{ width: `${((stageIndex + 1) / 8) * 100}%` }}
                   transition={{ duration: 0.3 }}
@@ -145,22 +145,22 @@ export const AIWebsiteAuditPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-12"
+            className="space-y-16"
           >
             {/* REPORT HEADER SUMMARY */}
-            <div className="bg-[#0F172A] border border-white/[0.08] rounded-[20px] p-8 lg:p-10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="space-y-3 text-center md:text-left">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Audit Results For</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-white font-mono break-all">{report.url}</h2>
-                <p className="text-sm text-slate-400">Completed on {new Date(report.timestamp).toLocaleString()}</p>
+            <div className="bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] rounded-[20px] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 hover:border-[#06B6D4]/30 transition-all duration-300">
+              <div className="space-y-2 text-center md:text-left">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#A1A1AA]">Audit Results For</span>
+                <h2 className="text-xl md:text-2xl font-bold text-white font-mono break-all">{report.url}</h2>
+                <p className="text-xs text-[#71717A]">Completed on {new Date(report.timestamp).toLocaleString()}</p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-8">
-                <AuditScoreRing score={report.overallScore} />
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <AuditScoreRing score={report.overallScore} size={150} />
                 
                 <button
                   onClick={() => setIsExportOpen(true)}
-                  className="py-3 px-5 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-white/10 transition-all text-sm flex items-center gap-2"
+                  className="py-3 px-5 bg-transparent border border-[#06B6D4] text-[#06B6D4] hover:bg-[#06B6D4] hover:text-black font-semibold rounded-xl transition-all duration-250 text-sm flex items-center gap-2"
                 >
                   📥 Export / Share Report
                 </button>
@@ -168,18 +168,18 @@ export const AIWebsiteAuditPage = () => {
             </div>
 
             {/* CATEGORIES GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(report.categories).map(([key, cat]) => (
                 <motion.div
                   key={key}
-                  whileHover={{ scale: 1.01 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-[#0F172A] border border-white/[0.08] rounded-[20px] p-8 space-y-6 shadow-xl"
+                  className="bg-[#0F172A]/65 backdrop-blur-md border border-white/[0.08] hover:border-[#06B6D4]/40 rounded-[20px] p-8 space-y-6 shadow-2xl transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-bold text-white">{cat.title}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{cat.description}</p>
+                      <h3 className="text-lg font-bold text-white">{cat.title}</h3>
+                      <p className="text-xs text-[#A1A1AA] mt-1">{cat.description}</p>
                     </div>
                     <span className={`text-2xl font-bold ${
                       cat.score >= 80 ? 'text-[#22C55E]' : cat.score >= 60 ? 'text-[#F59E0B]' : 'text-[#EF4444]'
@@ -189,7 +189,7 @@ export const AIWebsiteAuditPage = () => {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#050505] h-2 rounded-full overflow-hidden border border-white/[0.08]">
                     <div 
                       className="h-full transition-all duration-500 rounded-full"
                       style={{
@@ -208,7 +208,7 @@ export const AIWebsiteAuditPage = () => {
                         </span>
                         <div>
                           <p className="text-white font-medium">{check.name}</p>
-                          <p className="text-xs text-slate-400">{check.detail}</p>
+                          <p className="text-xs text-[#A1A1AA]">{check.detail}</p>
                         </div>
                       </div>
                     ))}
@@ -217,19 +217,19 @@ export const AIWebsiteAuditPage = () => {
                   {/* Recommendations */}
                   {cat.recommendations.length > 0 && (
                     <div className="pt-4 border-t border-white/[0.08]">
-                      <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Action Required</h4>
+                      <h4 className="text-xs font-semibold uppercase text-[#A1A1AA] tracking-wider mb-3">Action Required</h4>
                       {cat.recommendations.map((rec, rIdx) => (
-                        <div key={rIdx} className="bg-[#05070B] p-4 rounded-xl border border-white/5 space-y-2">
+                        <div key={rIdx} className="bg-[#050505] p-4 rounded-xl border border-white/[0.08] space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-white text-sm font-semibold">{rec.issue}</span>
                             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                              rec.priority === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                              rec.priority === 'High' ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/30' : 'bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/30'
                             }`}>
                               {rec.priority} Priority
                             </span>
                           </div>
-                          <p className="text-xs text-slate-400"><strong className="text-slate-300">Fix:</strong> {rec.solution}</p>
-                          <p className="text-xs text-[#00D4FF]"><strong className="text-slate-300">Impact:</strong> {rec.impact}</p>
+                          <p className="text-xs text-[#A1A1AA]"><strong className="text-white">Fix:</strong> {rec.solution}</p>
+                          <p className="text-xs text-[#06B6D4]"><strong className="text-white">Impact:</strong> {rec.impact}</p>
                         </div>
                       ))}
                     </div>
@@ -239,17 +239,17 @@ export const AIWebsiteAuditPage = () => {
             </div>
 
             {/* CALL TO ACTION CONVERSION BLOCK */}
-            <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/20 border border-[#00D4FF]/30 rounded-[20px] p-8 lg:p-12 text-center space-y-6">
-              <h3 className="text-2xl md:text-3xl font-extrabold text-white">
+            <div className="bg-[#0F172A]/65 backdrop-blur-md border border-[#06B6D4]/30 rounded-[20px] p-8 lg:p-12 text-center space-y-6 shadow-2xl">
+              <h3 className="text-2xl md:text-3xl font-bold text-white">
                 Need Help Fixing These Issues?
               </h3>
-              <p className="text-slate-300 max-w-xl mx-auto text-base">
+              <p className="text-[#A1A1AA] max-w-xl mx-auto text-sm md:text-base">
                 Our enterprise software and SEO engineering team can optimize your Core Web Vitals, fix architectural flaws, and implement GEO schemas.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                 <a
                   href="/contact"
-                  className="w-full sm:w-auto py-4 px-8 bg-[#00D4FF] hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+                  className="w-full sm:w-auto py-4 px-8 bg-[#06B6D4] hover:bg-[#06B6D4]/90 text-black font-bold rounded-xl transition-all duration-250 transform hover:scale-[1.03] shadow-lg shadow-[#06B6D4]/20 text-center"
                 >
                   Book Free Technical Consultation
                 </a>
