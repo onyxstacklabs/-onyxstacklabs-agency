@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { SearchCheck } from 'lucide-react';
 import { siteConfig } from '../config/siteConfig';
 import { toolsConfig as rawToolsConfig } from '../config/toolsConfig';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function ToolsHub({ currentPath, navigateToNode }) {
   useEffect(() => {
@@ -38,13 +36,6 @@ export default function ToolsHub({ currentPath, navigateToNode }) {
 
       {/* AMBIENT RADIAL GRAPHICS */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[750px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.06),transparent_60%)] pointer-events-none z-0" />
-
-      <Navbar
-        currentPath={currentPath}
-        activeSection=""
-        navigateToNode={navigateToNode}
-        siteConfig={siteConfig}
-      />
 
       <div className="relative z-10">
 
@@ -123,8 +114,6 @@ export default function ToolsHub({ currentPath, navigateToNode }) {
         </section>
 
       </div>
-
-      <Footer siteConfig={siteConfig} />
     </div>
   );
 }
