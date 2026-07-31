@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// LIVE DATA CORE IMPORTS
-import { siteConfig } from '../config/siteConfig';
-
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -146,14 +139,6 @@ export default function Projects({ currentPath, navigateToNode }) {
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-[linear-gradient(to_right,#1f1f1f12_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f12_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0 opacity-70 border-b border-neutral-900/40" />
       <div className="absolute top-[1000px] right-0 w-[500px] h-[500px] bg-cyan-500/[0.02] blur-[130px] pointer-events-none" />
       <div className="absolute bottom-[500px] left-0 w-[600px] h-[600px] bg-blue-600/[0.02] blur-[160px] pointer-events-none" />
-
-      {/* CORE NAVBAR ROUTER INTEGRATION INJECTION */}
-      <Navbar 
-        currentPath={currentPath} 
-        activeSection="" 
-        navigateToNode={navigateToNode} 
-        siteConfig={siteConfig} 
-      />
 
       {/* COMPONENT BODY LAYER FRAME */}
       <main className="relative z-10 distribution-case-studies-scope" id="main-content">
@@ -436,7 +421,7 @@ export default function Projects({ currentPath, navigateToNode }) {
               <motion.div 
                 key={ctIdx} 
                 variants={fxFadeUp}
-                whileHover={{ borderStandard: "1px solid rgba(6,182,212,0.2)", scale: 1.02 }}
+                whileHover={{ scale: 1.02 }}
                 className="p-5 rounded-xl border border-neutral-900 bg-neutral-950/80 hover:bg-neutral-900/40 transition-all duration-200 shadow-sm"
               >
                 <h4 className="text-sm font-bold text-neutral-200 font-sans tracking-wide mb-1">{coreTech}</h4>
@@ -478,9 +463,6 @@ export default function Projects({ currentPath, navigateToNode }) {
         </section>
 
       </main>
-
-      {/* CORE GLOBAL FOOTER MODULE STRUCTURE */}
-      <Footer siteConfig={siteConfig} />
 
     </div>
   );
