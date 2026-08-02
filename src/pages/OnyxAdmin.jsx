@@ -323,7 +323,13 @@ Requirements:
       alert("AI Content & SEO Schema successfully generated!");
     } catch (error) {
       console.error("Error generating content via Gemini API:", error);
-      alert("Failed to generate content via AI. Check console for error details.");
+      // TEMPORARY DEBUG: surface the real error text directly in the popup
+      // so it's visible on mobile without needing DevTools console access.
+      const debugMessage =
+        error?.message ||
+        (typeof error === 'string' ? error : JSON.stringify(error)) ||
+        "Unknown error (no message returned by SDK).";
+      alert("AI Generation Failed.\n\nDEBUG DETAILS:\n" + debugMessage);
     } finally {
       setIsAiGenerating(false);
     }
