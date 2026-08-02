@@ -38,7 +38,7 @@ export default function OnyxAdmin() {
   const [blogPage, setBlogPage] = useState(1);
   const blogsPerPage = 5;
 
-  // Blog Form / Editor State
+  // Blog Form / Editor State (Enhanced with Full SEO & Freshness Schema)
   const [isEditing, setIsEditing] = useState(false);
   const [currentBlogId, setCurrentBlogId] = useState(null);
   const [blogForm, setBlogForm] = useState({
@@ -47,6 +47,7 @@ export default function OnyxAdmin() {
     summary: '',
     content: '',
     coverImage: '',
+    coverImageAlt: '',
     category: 'React',
     tags: '',
     author: '',
@@ -54,7 +55,11 @@ export default function OnyxAdmin() {
     featured: false,
     seoTitle: '',
     seoDescription: '',
-    readTime: '1 min read'
+    canonicalUrl: '',
+    schemaType: 'BlogPosting',
+    noIndex: false,
+    readTime: '1 min read',
+    publishedAt: null
   });
 
   const [previewMode, setPreviewMode] = useState(false);
@@ -77,7 +82,6 @@ export default function OnyxAdmin() {
   }, [blogForm.content]);
 
   // Firebase Authentication Session Listener — persists login across refreshes
-  // (Firebase Auth defaults to local persistence, so no extra storage logic is needed)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -239,13 +243,45 @@ export default function OnyxAdmin() {
     window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
   };
 
+  // Helper function to auto-optimize image URL parameters for WebP/compression
+  const optimizeImageUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('images.unsplash.com') && !url.includes('auto=format')) {
+      const joinChar = url.includes('?') ? '&' : '?';
+      return `${url}${joinChar}auto=format&fit=crop&w=1200&q=80`;
+    }
+    return url;
+  };
+
+  // Background non-blocking IndexNow / Sitemap notification hook
+  const triggerSearchEngineNotification = async (slug) => {
+    try {
+      const targetUrl = `https://onyxstacklabs.com/blog/${slug}`;
+      console.log(`[SEO Sync] Triggering background revalidation ping for: ${targetUrl}`);
+      // Asynchronous fetch call to frontend revalidation endpoint if configured
+      fetch('/api/revalidate-sitemap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, url: targetUrl })
+      }).catch(err => console.log('[SEO Sync Ping Silent Fallback]:', err));
+    } catch (e) {
+      // Non-blocking catch so database writes are never interrupted
+    }
+  };
+
   // Blog Action Logic Handlers
   const handleBlogFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setBlogForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setBlogForm(prev => {
+      let updatedValue = type === 'checkbox' ? checked : value;
+      if (name === 'coverImage' && typeof updatedValue === 'string') {
+        updatedValue = optimizeImageUrl(updatedValue);
+      }
+      return {
+        ...prev,
+        [name]: updatedValue
+      };
+    });
   };
 
   const resetBlogForm = () => {
@@ -258,6 +294,7 @@ export default function OnyxAdmin() {
       summary: '',
       content: '',
       coverImage: '',
+      coverImageAlt: '',
       category: 'React',
       tags: '',
       author: '',
@@ -265,11 +302,15 @@ export default function OnyxAdmin() {
       featured: false,
       seoTitle: '',
       seoDescription: '',
-      readTime: '1 min read'
+      canonicalUrl: '',
+      schemaType: 'BlogPosting',
+      noIndex: false,
+      readTime: '1 min read',
+      publishedAt: null
     });
   };
 
-  // Clean Direct Save Function (No DOM Hacks)
+  // Clean Direct Save Function (Enhanced with Freshness Timestamps & Background Sync)
   const handleSaveBlog = async (e, forcePublished = null) => {
     if (e) e.preventDefault();
     try {
@@ -278,11 +319,14 @@ export default function OnyxAdmin() {
         ? blogForm.tags.split(',').map(t => t.trim()).filter(Boolean) 
         : blogForm.tags;
 
+      const now = serverTimestamp();
       const blogPayload = {
         ...blogForm,
+        coverImage: optimizeImageUrl(blogForm.coverImage),
         published: isPublishedState,
         tags: processedTags,
-        updatedAt: serverTimestamp()
+        updatedAt: now,
+        publishedAt: isPublishedState ? (blogForm.publishedAt || now) : null
       };
 
       if (isEditing) {
@@ -293,10 +337,15 @@ export default function OnyxAdmin() {
         const blogsRef = collection(db, 'blogs');
         await addDoc(blogsRef, {
           ...blogPayload,
-          createdAt: serverTimestamp()
+          createdAt: now
         });
         alert("New blog document compiled and pushed to Firestore.");
       }
+
+      if (isPublishedState) {
+        triggerSearchEngineNotification(blogForm.slug);
+      }
+
       resetBlogForm();
     } catch (error) {
       console.error("Error committing blog record: ", error);
@@ -314,6 +363,7 @@ export default function OnyxAdmin() {
       summary: blog.summary || '',
       content: blog.content || '',
       coverImage: blog.coverImage || '',
+      coverImageAlt: blog.coverImageAlt || '',
       category: blog.category || 'React',
       tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : blog.tags || '',
       author: blog.author || '',
@@ -321,7 +371,11 @@ export default function OnyxAdmin() {
       featured: !!blog.featured,
       seoTitle: blog.seoTitle || '',
       seoDescription: blog.seoDescription || '',
-      readTime: blog.readTime || '1 min read'
+      canonicalUrl: blog.canonicalUrl || '',
+      schemaType: blog.schemaType || 'BlogPosting',
+      noIndex: !!blog.noIndex,
+      readTime: blog.readTime || '1 min read',
+      publishedAt: blog.publishedAt || null
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -371,8 +425,7 @@ export default function OnyxAdmin() {
   const currentPaginatedBlogs = sortedBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
   const totalPages = Math.ceil(sortedBlogs.length / blogsPerPage) || 1;
 
-  // Initial auth-state check in progress — prevents a flash of the login screen
-  // before Firebase has confirmed whether a session already exists.
+  // Initial auth-state check in progress
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0d0d0d] flex flex-col justify-center items-center px-4 font-sans text-white">
@@ -581,6 +634,16 @@ export default function OnyxAdmin() {
                             <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">Scope Anchor</span>
                             <span className="text-slate-200 capitalize">{lead.details || 'General Request'}</span>
                           </div>
+
+                          {(lead.sourceUrl || lead.blogSlug) && (
+                            <div className="col-span-2 border-t border-slate-900 pt-2">
+                              <span className="block text-[10px] uppercase tracking-wider text-[#00f2fe] mb-0.5">// Lead Attribution Source</span>
+                              <span className="text-slate-300 text-[11px] font-mono">
+                                Converted from: <strong className="text-cyan-400">{lead.blogSlug || lead.sourceUrl}</strong>
+                              </span>
+                            </div>
+                          )}
+
                           <div className="col-span-2 border-t border-slate-900 pt-2 mt-1">
                             <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">Transmission Timestamp</span>
                             <span className="text-slate-400 text-[11px]">
@@ -691,7 +754,7 @@ export default function OnyxAdmin() {
                     {blogForm.coverImage ? (
                       <img 
                         src={blogForm.coverImage} 
-                        alt="Cover Preview" 
+                        alt={blogForm.coverImageAlt || "Cover Preview"} 
                         className="w-full h-64 object-cover rounded-xl border border-slate-800"
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
@@ -721,6 +784,9 @@ export default function OnyxAdmin() {
                       <div className="text-slate-500 uppercase text-[10px] font-bold tracking-wider mb-1">SEO Routing Header Parameters</div>
                       <div><span className="text-slate-600">Slug Endpoint:</span> /blog/{blogForm.slug}</div>
                       <div><span className="text-slate-600">Meta Title:</span> {blogForm.seoTitle || blogForm.title}</div>
+                      <div><span className="text-slate-600">Canonical:</span> {blogForm.canonicalUrl || `https://onyxstacklabs.com/blog/${blogForm.slug}`}</div>
+                      <div><span className="text-slate-600">Schema Type:</span> {blogForm.schemaType}</div>
+                      <div><span className="text-slate-600">Robots State:</span> {blogForm.noIndex ? 'NOINDEX, NOFOLLOW' : 'INDEX, FOLLOW'}</div>
                       <div><span className="text-slate-600">Meta Tags:</span> {blogForm.tags}</div>
                     </div>
                   </div>
@@ -830,7 +896,7 @@ export default function OnyxAdmin() {
                         </div>
 
                         <div>
-                          <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Cover Image CDN Trajectory Target</label>
+                          <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Cover Image CDN Target</label>
                           <input
                             type="text"
                             name="coverImage"
@@ -838,6 +904,18 @@ export default function OnyxAdmin() {
                             onChange={handleBlogFormChange}
                             placeholder="https://images.unsplash.com/..."
                             className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Cover Image ALT Text (SEO)</label>
+                          <input
+                            type="text"
+                            name="coverImageAlt"
+                            value={blogForm.coverImageAlt}
+                            onChange={handleBlogFormChange}
+                            placeholder="Graphic illustration describing the blog title"
+                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
@@ -854,9 +932,18 @@ export default function OnyxAdmin() {
                         </div>
 
                         <div className="pt-2 border-t border-slate-900 space-y-3">
-                          <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500">// SEO Edge Overrides</label>
+                          <div className="flex justify-between items-center">
+                            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500">// SEO Edge Overrides</label>
+                            <span className="text-[10px] font-mono text-cyan-400">Realtime Validator</span>
+                          </div>
                           
                           <div>
+                            <div className="flex justify-between text-[10px] font-mono mb-1">
+                              <span className="text-slate-400">Meta Title</span>
+                              <span className={(blogForm.seoTitle || blogForm.title).length > 60 ? 'text-amber-400' : 'text-slate-500'}>
+                                {(blogForm.seoTitle || blogForm.title).length}/60
+                              </span>
+                            </div>
                             <input
                               type="text"
                               name="seoTitle"
@@ -868,6 +955,12 @@ export default function OnyxAdmin() {
                           </div>
 
                           <div>
+                            <div className="flex justify-between text-[10px] font-mono mb-1">
+                              <span className="text-slate-400">Meta Description</span>
+                              <span className={(blogForm.seoDescription || blogForm.summary).length > 160 ? 'text-amber-400' : 'text-slate-500'}>
+                                {(blogForm.seoDescription || blogForm.summary).length}/160
+                              </span>
+                            </div>
                             <textarea
                               name="seoDescription"
                               rows="2"
@@ -876,6 +969,32 @@ export default function OnyxAdmin() {
                               placeholder="SEO Description Parameter Field Index"
                               className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all resize-none"
                             />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-mono text-slate-400 mb-1">Canonical URL Override</label>
+                            <input
+                              type="text"
+                              name="canonicalUrl"
+                              value={blogForm.canonicalUrl}
+                              onChange={handleBlogFormChange}
+                              placeholder="https://onyxstacklabs.com/blog/custom-canonical"
+                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-mono text-slate-400 mb-1">Structured Schema Markup Type</label>
+                            <select
+                              name="schemaType"
+                              value={blogForm.schemaType}
+                              onChange={handleBlogFormChange}
+                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs text-white outline-none transition-all"
+                            >
+                              <option value="BlogPosting">BlogPosting (Standard)</option>
+                              <option value="TechArticle">TechArticle (Technical)</option>
+                              <option value="NewsArticle">NewsArticle (Updates)</option>
+                            </select>
                           </div>
                         </div>
 
@@ -905,6 +1024,20 @@ export default function OnyxAdmin() {
                                 className="sr-only peer" 
                               />
                               <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500 peer-checked:after:bg-black"></div>
+                            </label>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-900">
+                            <span className="text-xs font-mono uppercase tracking-wider text-slate-300">Robots NoIndex Flag</span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                name="noIndex"
+                                checked={blogForm.noIndex}
+                                onChange={handleBlogFormChange}
+                                className="sr-only peer" 
+                              />
+                              <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500 peer-checked:after:bg-black"></div>
                             </label>
                           </div>
                         </div>
@@ -1034,6 +1167,11 @@ export default function OnyxAdmin() {
                           {blog.featured && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold">
                               Star
+                            </span>
+                          )}
+                          {blog.noIndex && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">
+                              NoIndex
                             </span>
                           )}
                         </div>
