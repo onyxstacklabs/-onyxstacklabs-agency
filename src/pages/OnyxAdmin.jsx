@@ -1,433 +1,494 @@
-import React, { useState, useEffect } from 'react';
-// Exact relative trajectory mapping targeting the real firebase module location
-import { db, auth } from '../config/firebase'; 
-import { collection, query, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp, where } from 'firebase/firestore';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+Import React, { useState, useEffect } from 'react';
+// Google Gen AI SDK integration for automated content generation
+Import { GoogleGenAI } from '@google/genai';
 
-export default function OnyxAdmin() {
-  const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Exact relative trajectory mapping targeting the real firebase module location
+Import { db, auth } from '../config/firebase'; 
+Import { collection, query, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp, where } from 'firebase/firestore';
+Import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+
+// Initialize Gemini Client using standard Vite Environment Variable key
+Const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+Const ai = apiKey ? New GoogleGenAI({ apiKey }) : null;
+Const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
+
+Export default function OnyxAdmin() {
+  Const [leads, setLeads] = useState([]);
+  Const [loading, setLoading] = useState(true);
 
   // Firebase Authentication Session State Matrix
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [authSubmitting, setAuthSubmitting] = useState(false);
+  Const [user, setUser] = useState(null);
+  Const [authLoading, setAuthLoading] = useState(true);
+  Const [loginEmail, setLoginEmail] = useState('');
+  Const [loginPassword, setLoginPassword] = useState('');
+  Const [authError, setAuthError] = useState('');
+  Const [authSubmitting, setAuthSubmitting] = useState(false);
 
   // Derived authentication flag — kept so all existing gated effects below
   // (leads / blogs / recruitment listeners) continue to work unchanged.
-  const isAuthenticated = !!user;
+  Const isAuthenticated = !!user;
 
   // Enterprise Blog CMS State Matrix
-  const [currentTab, setCurrentTab] = useState('leads'); // 'leads', 'blog', or 'recruitment'
-  const [blogs, setBlogs] = useState([]);
-  const [blogsLoading, setBlogsLoading] = useState(true);
+  Const [currentTab, setCurrentTab] = useState('leads'); // 'leads', 'blog', or 'recruitment'
+  Const [blogs, setBlogs] = useState([]);
+  Const [blogsLoading, setBlogsLoading] = useState(true);
   
   // Recruitment Pipeline Core State Matrix
-  const [candidates, setCandidates] = useState([]);
-  const [candidatesLoading, setCandidatesLoading] = useState(true);
-  const [activeCandidateTab, setActiveCandidateTab] = useState('pending'); // 'pending', 'shortlisted', 'archived'
+  Const [candidates, setCandidates] = useState([]);
+  Const [candidatesLoading, setCandidatesLoading] = useState(true);
+  Const [activeCandidateTab, setActiveCandidateTab] = useState('pending'); // 'pending', 'shortlisted', 'archived'
   
   // Blog Filter/Sort/Search Pipeline State
-  const [blogSearch, setBlogSearch] = useState('');
-  const [blogCategoryFilter, setBlogCategoryFilter] = useState('All');
-  const [blogStatusFilter, setBlogStatusFilter] = useState('All');
-  const [blogSortOrder, setBlogSortOrder] = useState('newest');
-  const [blogPage, setBlogPage] = useState(1);
-  const blogsPerPage = 5;
+  Const [blogSearch, setBlogSearch] = useState('');
+  Const [blogCategoryFilter, setBlogCategoryFilter] = useState('All');
+  Const [blogStatusFilter, setBlogStatusFilter] = useState('All');
+  Const [blogSortOrder, setBlogSortOrder] = useState('newest');
+  Const [blogPage, setBlogPage] = useState(1);
+  Const blogsPerPage = 5;
 
   // Blog Form / Editor State (Enhanced with Full SEO & Freshness Schema)
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentBlogId, setCurrentBlogId] = useState(null);
-  const [blogForm, setBlogForm] = useState({
-    title: '',
-    slug: '',
-    summary: '',
-    content: '',
-    coverImage: '',
-    coverImageAlt: '',
-    category: 'React',
-    tags: '',
-    author: '',
-    published: false,
-    featured: false,
-    seoTitle: '',
-    seoDescription: '',
-    canonicalUrl: '',
-    schemaType: 'BlogPosting',
-    noIndex: false,
-    readTime: '1 min read',
-    publishedAt: null
+  Const [isEditing, setIsEditing] = useState(false);
+  Const [currentBlogId, setCurrentBlogId] = useState(null);
+  Const [blogForm, setBlogForm] = useState({
+    Title: '',
+    Slug: '',
+    Summary: '',
+    Content: '',
+    CoverImage: '',
+    CoverImageAlt: '',
+    Category: 'React',
+    Tags: '',
+    Author: '',
+    Published: false,
+    Featured: false,
+    SeoTitle: '',
+    SeoDescription: '',
+    CanonicalUrl: '',
+    SchemaType: 'BlogPosting',
+    NoIndex: false,
+    ReadTime: '1 min read',
+    PublishedAt: null
   });
 
-  const [previewMode, setPreviewMode] = useState(false);
+  Const [previewMode, setPreviewMode] = useState(false);
+  Const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   // Auto-generate Slug & Reading Time on Title/Content Mutations
-  useEffect(() => {
-    if (!isEditing) {
-      const computedSlug = blogForm.title
+  UseEffect(() => {
+    If (!isEditing) {
+      Const computedSlug = blogForm.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
-      setBlogForm(prev => ({ ...prev, slug: computedSlug }));
+      SetBlogForm(prev => ({ ...prev, slug: computedSlug }));
     }
   }, [blogForm.title, isEditing]);
 
-  useEffect(() => {
-    const words = blogForm.content.trim() ? blogForm.content.trim().split(/\s+/).length : 0;
-    const minutes = Math.max(1, Math.ceil(words / 225));
-    setBlogForm(prev => ({ ...prev, readTime: `${minutes} min read` }));
+  UseEffect(() => {
+    Const words = blogForm.content.trim() ? BlogForm.content.trim().split(/\s+/).length : 0;
+    Const minutes = Math.max(1, Math.ceil(words / 225));
+    SetBlogForm(prev => ({ ...prev, readTime: `${minutes} min read` }));
   }, [blogForm.content]);
 
   // Firebase Authentication Session Listener — persists login across refreshes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setAuthLoading(false);
+  UseEffect(() => {
+    Const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      SetUser(firebaseUser);
+      SetAuthLoading(false);
     });
-    return () => unsubscribe();
+    Return () => unsubscribe();
   }, []);
 
   // Secure Firebase Authentication Login Handler
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setAuthError('');
-    setAuthSubmitting(true);
-    try {
-      await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword);
-      setLoginPassword('');
+  Const handleLogin = async (e) => {
+    E.preventDefault();
+    SetAuthError('');
+    SetAuthSubmitting(true);
+    Try {
+      Await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword);
+      SetLoginPassword('');
     } catch (error) {
-      console.error("Firebase authentication error: ", error);
-      setAuthError('Access Denied: Invalid credentials or account not authorized.');
+      Console.error("Firebase authentication error: ", error);
+      SetAuthError('Access Denied: Invalid credentials or account not authorized.');
     } finally {
-      setAuthSubmitting(false);
+      SetAuthSubmitting(false);
     }
   };
 
   // Secure Logout Handler — clears session and returns user to Login Screen
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
+  Const handleLogout = async () => {
+    Try {
+      Await signOut(auth);
     } catch (error) {
-      console.error("Error signing out: ", error);
+      Console.error("Error signing out: ", error);
     }
   };
 
   // Real-time listener for incoming agency leads
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  UseEffect(() => {
+    If (!isAuthenticated) return;
 
-    const leadsRef = collection(db, 'agency_leads');
-    const q = query(leadsRef);
+    Const leadsRef = collection(db, 'agency_leads');
+    Const q = query(leadsRef);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedLeads = snapshot.docs.map(doc => ({
-        id: doc.id,
+    Const unsubscribe = onSnapshot(q, (snapshot) => {
+      Const fetchedLeads = snapshot.docs.map(doc => ({
+        Id: doc.id,
         ...doc.data()
       }));
 
-      fetchedLeads.sort((a, b) => {
-        const timeA = a.timestamp?.seconds || 0;
-        const timeB = b.timestamp?.seconds || 0;
-        return timeB - timeA;
+      FetchedLeads.sort((a, b) => {
+        Const timeA = a.timestamp?.seconds || 0;
+        Const timeB = b.timestamp?.seconds || 0;
+        Return timeB - timeA;
       });
 
-      setLeads(fetchedLeads);
-      setLoading(false);
+      SetLeads(fetchedLeads);
+      SetLoading(false);
     }, (error) => {
-      console.error("Firestore stream error: ", error);
-      setLoading(false);
+      Console.error("Firestore stream error: ", error);
+      SetLoading(false);
     });
 
-    return () => unsubscribe();
+    Return () => unsubscribe();
   }, [isAuthenticated]);
 
   // Real-time listener for Enterprise Blog CMS Matrix
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  UseEffect(() => {
+    If (!isAuthenticated) return;
 
-    const blogsRef = collection(db, 'blogs');
-    const q = query(blogsRef);
+    Const blogsRef = collection(db, 'blogs');
+    Const q = query(blogsRef);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedBlogs = snapshot.docs.map(doc => ({
-        id: doc.id,
+    Const unsubscribe = onSnapshot(q, (snapshot) => {
+      Const fetchedBlogs = snapshot.docs.map(doc => ({
+        Id: doc.id,
         ...doc.data()
       }));
 
-      fetchedBlogs.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA;
+      FetchedBlogs.sort((a, b) => {
+        Const timeA = a.createdAt?.seconds || 0;
+        Const timeB = b.createdAt?.seconds || 0;
+        Return timeB - timeA;
       });
 
-      setBlogs(fetchedBlogs);
-      setBlogsLoading(false);
+      SetBlogs(fetchedBlogs);
+      SetBlogsLoading(false);
     }, (error) => {
-      console.error("Firestore blogs stream error: ", error);
-      setBlogsLoading(false);
+      Console.error("Firestore blogs stream error: ", error);
+      SetBlogsLoading(false);
     });
 
-    return () => unsubscribe();
+    Return () => unsubscribe();
   }, [isAuthenticated]);
 
   // Real-time listener for incoming recruitment submissions
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    setCandidatesLoading(true);
+  UseEffect(() => {
+    If (!isAuthenticated) return;
+    SetCandidatesLoading(true);
 
-    const recruitmentRef = collection(db, 'recruitment_pipeline');
-    const q = query(
-      recruitmentRef, 
-      where('status', '==', activeCandidateTab)
+    Const recruitmentRef = collection(db, 'recruitment_pipeline');
+    Const q = query(
+      RecruitmentRef, 
+      Where('status', '==', activeCandidateTab)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedCandidates = snapshot.docs.map(doc => ({
-        id: doc.id,
+    Const unsubscribe = onSnapshot(q, (snapshot) => {
+      Const fetchedCandidates = snapshot.docs.map(doc => ({
+        Id: doc.id,
         ...doc.data()
       }));
 
-      fetchedCandidates.sort((a, b) => {
-        const timeA = a.submittedAt?.seconds || 0;
-        const timeB = b.submittedAt?.seconds || 0;
-        return timeB - timeA;
+      FetchedCandidates.sort((a, b) => {
+        Const timeA = a.submittedAt?.seconds || 0;
+        Const timeB = b.submittedAt?.seconds || 0;
+        Return timeB - timeA;
       });
 
-      setCandidates(fetchedCandidates);
-      setCandidatesLoading(false);
+      SetCandidates(fetchedCandidates);
+      SetCandidatesLoading(false);
     }, (error) => {
-      console.error("Firestore recruitment stream error: ", error);
-      setCandidatesLoading(false);
+      Console.error("Firestore recruitment stream error: ", error);
+      SetCandidatesLoading(false);
     });
 
-    return () => unsubscribe();
+    Return () => unsubscribe();
   }, [isAuthenticated, activeCandidateTab]);
 
   // Core Mutation Logic for updating Lead Status
-  const updateLeadStatus = async (leadId, newStatus) => {
-    try {
-      const leadDocRef = doc(db, 'agency_leads', leadId);
-      await updateDoc(leadDocRef, { status: newStatus });
+  Const updateLeadStatus = async (leadId, newStatus) => {
+    Try {
+      Const leadDocRef = doc(db, 'agency_leads', leadId);
+      Await updateDoc(leadDocRef, { status: newStatus });
     } catch (error) {
-      console.error("Error updating lead status: ", error);
-      alert("Failed to update status node.");
+      Console.error("Error updating lead status: ", error);
+      Alert("Failed to update status node.");
     }
   };
 
   // Core Mutation Logic for candidate workflows
-  const updateCandidateStatus = async (candidateId, newStatus) => {
-    try {
-      const candidateDocRef = doc(db, 'recruitment_pipeline', candidateId);
-      await updateDoc(candidateDocRef, { status: newStatus });
+  Const updateCandidateStatus = async (candidateId, newStatus) => {
+    Try {
+      Const candidateDocRef = doc(db, 'recruitment_pipeline', candidateId);
+      Await updateDoc(candidateDocRef, { status: newStatus });
     } catch (error) {
-      console.error("Error mutating candidate pipeline state: ", error);
-      alert("Failed to update candidate workflow node.");
+      Console.error("Error mutating candidate pipeline state: ", error);
+      Alert("Failed to update candidate workflow node.");
     }
   };
 
   // WhatsApp communication helper
-  const triggerWhatsAppCommunication = (phone, companyName) => {
-    const cleanPhone = phone.replace(/[^\d+]/g, ''); 
-    const message = `Hello ${companyName},\n\nThis is OnyxStack Labs. We have successfully verified your parameters and initiated your active engineering funnel.\n\nLet us schedule a quick technical discovery call. Please let us know your availability.`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, '_blank');
+  Const triggerWhatsAppCommunication = (phone, companyName) => {
+    Const cleanPhone = phone.replace(/[^\d+]/g, ''); 
+    Const message = `Hello ${companyName},\n\nThis is OnyxStack Labs. We have successfully verified your parameters and initiated your active engineering funnel.\n\nLet us schedule a quick technical discovery call. Please let us know your availability.`;
+    Const encodedMessage = encodeURIComponent(message);
+    Window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, '_blank');
   };
 
   // Email communication helper
-  const triggerEmailCommunication = (email, name, role) => {
-    const subject = encodeURIComponent(`[OnyxStack Labs] Application Update - ${role}`);
-    const body = encodeURIComponent(`Hello ${name},\n\nThank you for applying for the ${role} position at OnyxStack Labs.\n\nWe have reviewed your profile and would like to move forward to discuss your technical parameters.\n\nBest Regards,\nOnyxStack Labs Management`);
-    window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
+  Const triggerEmailCommunication = (email, name, role) => {
+    Const subject = encodeURIComponent(`[OnyxStack Labs] Application Update - ${role}`);
+    Const body = encodeURIComponent(`Hello ${name},\n\nThank you for applying for the ${role} position at OnyxStack Labs.\n\nWe have reviewed your profile and would like to move forward to discuss your technical parameters.\n\nBest Regards,\nOnyxStack Labs Management`);
+    Window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
   };
 
   // Helper function to auto-optimize image URL parameters for WebP/compression
-  const optimizeImageUrl = (url) => {
-    if (!url) return '';
-    if (url.includes('images.unsplash.com') && !url.includes('auto=format')) {
-      const joinChar = url.includes('?') ? '&' : '?';
-      return `${url}${joinChar}auto=format&fit=crop&w=1200&q=80`;
+  Const optimizeImageUrl = (url) => {
+    If (!url) return '';
+    If (url.includes('images.unsplash.com') && !url.includes('auto=format')) {
+      Const joinChar = url.includes('?') ? '&' : '?';
+      Return `${url}${joinChar}auto=format&fit=crop&w=1200&q=80`;
     }
-    return url;
+    Return url;
   };
 
   // Background non-blocking IndexNow / Sitemap notification hook
-  const triggerSearchEngineNotification = async (slug) => {
-    try {
-      const targetUrl = `https://onyxstacklabs.com/blog/${slug}`;
-      console.log(`[SEO Sync] Triggering background revalidation ping for: ${targetUrl}`);
-      // Asynchronous fetch call to frontend revalidation endpoint if configured
-      fetch('/api/revalidate-sitemap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, url: targetUrl })
+  Const triggerSearchEngineNotification = async (slug) => {
+    Try {
+      Const targetUrl = `https://onyxstacklabs.com/blog/${slug}`;
+      Console.log(`[SEO Sync] Triggering background revalidation ping for: ${targetUrl}`);
+      Fetch('/api/revalidate-sitemap', {
+        Method: 'POST',
+        Headers: { 'Content-Type': 'application/json' },
+        Body: JSON.stringify({ slug, url: targetUrl })
       }).catch(err => console.log('[SEO Sync Ping Silent Fallback]:', err));
     } catch (e) {
-      // Non-blocking catch so database writes are never interrupted
+      // Non-blocking catch
+    }
+  };
+
+  // Gemini AI Content Generation Handler
+  Const handleGenerateAiContent = async () => {
+    If (!blogForm.title.trim()) {
+      Alert("Please specify an Article Headline Title first to guide the AI generation.");
+      Return;
+    }
+
+    If (!ai) {
+      Alert("Gemini API key is missing. Please make sure VITE_GEMINI_API_KEY is defined in Vercel / environment variables.");
+      Return;
+    }
+
+    SetIsAiGenerating(true);
+    Try {
+      Const prompt = `Act as an expert technical content writer for OnyxStack Labs.
+Write a comprehensive, SEO-optimized technical blog article about: "${blogForm.title}".
+Category: ${blogForm.category}.
+
+Requirements:
+- Structure content using clean Markdown (e.g., ### Headings, bullet points with -, code blocks starting with //).
+- Return standard JSON format with keys: "summary", "content", "seoTitle", "seoDescription", "tags".
+- "seoTitle": max 60 characters.
+- "seoDescription": max 160 characters.
+- "tags": comma-separated string of 3-5 relevant keywords.`;
+
+      Const response = await ai.models.generateContent({
+        Model: GEMINI_MODEL,
+        Contents: prompt,
+        Config: {
+          ResponseMimeType: "application/json"
+        }
+      });
+
+      Const generatedData = JSON.parse(response.text);
+
+      SetBlogForm(prev => ({
+        ...prev,
+        Summary: generatedData.summary || prev.summary,
+        Content: generatedData.content || prev.content,
+        SeoTitle: generatedData.seoTitle || prev.seoTitle,
+        SeoDescription: generatedData.seoDescription || prev.seoDescription,
+        Tags: generatedData.tags || prev.tags
+      }));
+
+      Alert("AI Content & SEO Schema successfully generated!");
+    } catch (error) {
+      Console.error("Error generating content via Gemini API:", error);
+      Alert("Failed to generate content via AI. Check console for error details.");
+    } finally {
+      SetIsAiGenerating(false);
     }
   };
 
   // Blog Action Logic Handlers
-  const handleBlogFormChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setBlogForm(prev => {
-      let updatedValue = type === 'checkbox' ? checked : value;
-      if (name === 'coverImage' && typeof updatedValue === 'string') {
-        updatedValue = optimizeImageUrl(updatedValue);
+  Const handleBlogFormChange = (e) => {
+    Const { name, value, type, checked } = e.target;
+    SetBlogForm(prev => {
+      Let updatedValue = type === 'checkbox' ? Checked : value;
+      If (name === 'coverImage' && typeof updatedValue === 'string') {
+        UpdatedValue = optimizeImageUrl(updatedValue);
       }
-      return {
+      Return {
         ...prev,
         [name]: updatedValue
       };
     });
   };
 
-  const resetBlogForm = () => {
-    setIsEditing(false);
-    setCurrentBlogId(null);
-    setPreviewMode(false);
-    setBlogForm({
-      title: '',
-      slug: '',
-      summary: '',
-      content: '',
-      coverImage: '',
-      coverImageAlt: '',
-      category: 'React',
-      tags: '',
-      author: '',
-      published: false,
-      featured: false,
-      seoTitle: '',
-      seoDescription: '',
-      canonicalUrl: '',
-      schemaType: 'BlogPosting',
-      noIndex: false,
-      readTime: '1 min read',
-      publishedAt: null
+  Const resetBlogForm = () => {
+    SetIsEditing(false);
+    SetCurrentBlogId(null);
+    SetPreviewMode(false);
+    SetBlogForm({
+      Title: '',
+      Slug: '',
+      Summary: '',
+      Content: '',
+      CoverImage: '',
+      CoverImageAlt: '',
+      Category: 'React',
+      Tags: '',
+      Author: '',
+      Published: false,
+      Featured: false,
+      SeoTitle: '',
+      SeoDescription: '',
+      CanonicalUrl: '',
+      SchemaType: 'BlogPosting',
+      NoIndex: false,
+      ReadTime: '1 min read',
+      PublishedAt: null
     });
   };
 
-  // Clean Direct Save Function (Enhanced with Freshness Timestamps & Background Sync)
-  const handleSaveBlog = async (e, forcePublished = null) => {
-    if (e) e.preventDefault();
-    try {
-      const isPublishedState = forcePublished !== null ? forcePublished : blogForm.published;
-      const processedTags = typeof blogForm.tags === 'string' 
-        ? blogForm.tags.split(',').map(t => t.trim()).filter(Boolean) 
+  // Clean Direct Save Function
+  Const handleSaveBlog = async (e, forcePublished = null) => {
+    If (e) e.preventDefault();
+    Try {
+      Const isPublishedState = forcePublished !== null ? ForcePublished : blogForm.published;
+      Const processedTags = typeof blogForm.tags === 'string' 
+        ? BlogForm.tags.split(',').map(t => t.trim()).filter(Boolean) 
         : blogForm.tags;
 
-      const now = serverTimestamp();
-      const blogPayload = {
+      Const now = serverTimestamp();
+      Const blogPayload = {
         ...blogForm,
-        coverImage: optimizeImageUrl(blogForm.coverImage),
-        published: isPublishedState,
-        tags: processedTags,
-        updatedAt: now,
-        publishedAt: isPublishedState ? (blogForm.publishedAt || now) : null
+        CoverImage: optimizeImageUrl(blogForm.coverImage),
+        Published: isPublishedState,
+        Tags: processedTags,
+        UpdatedAt: now,
+        PublishedAt: isPublishedState ? (blogForm.publishedAt || now) : null
       };
 
-      if (isEditing) {
-        const blogDocRef = doc(db, 'blogs', currentBlogId);
-        await updateDoc(blogDocRef, blogPayload);
-        alert("Blog node updated successfully.");
+      If (isEditing) {
+        Const blogDocRef = doc(db, 'blogs', currentBlogId);
+        Await updateDoc(blogDocRef, blogPayload);
+        Alert("Blog node updated successfully.");
       } else {
-        const blogsRef = collection(db, 'blogs');
-        await addDoc(blogsRef, {
+        Const blogsRef = collection(db, 'blogs');
+        Await addDoc(blogsRef, {
           ...blogPayload,
-          createdAt: now
+          CreatedAt: now
         });
-        alert("New blog document compiled and pushed to Firestore.");
+        Alert("New blog document compiled and pushed to Firestore.");
       }
 
-      if (isPublishedState) {
-        triggerSearchEngineNotification(blogForm.slug);
+      If (isPublishedState) {
+        TriggerSearchEngineNotification(blogForm.slug);
       }
 
-      resetBlogForm();
+      ResetBlogForm();
     } catch (error) {
-      console.error("Error committing blog record: ", error);
-      alert("Failed to write document parameters into database cluster.");
+      Console.error("Error committing blog record: ", error);
+      Alert("Failed to write document parameters into database cluster.");
     }
   };
 
-  const handleEditSelect = (blog) => {
-    setIsEditing(true);
-    setCurrentBlogId(blog.id);
-    setPreviewMode(false);
-    setBlogForm({
-      title: blog.title || '',
-      slug: blog.slug || '',
-      summary: blog.summary || '',
-      content: blog.content || '',
-      coverImage: blog.coverImage || '',
-      coverImageAlt: blog.coverImageAlt || '',
-      category: blog.category || 'React',
-      tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : blog.tags || '',
-      author: blog.author || '',
-      published: !!blog.published,
-      featured: !!blog.featured,
-      seoTitle: blog.seoTitle || '',
-      seoDescription: blog.seoDescription || '',
-      canonicalUrl: blog.canonicalUrl || '',
-      schemaType: blog.schemaType || 'BlogPosting',
-      noIndex: !!blog.noIndex,
-      readTime: blog.readTime || '1 min read',
-      publishedAt: blog.publishedAt || null
+  Const handleEditSelect = (blog) => {
+    SetIsEditing(true);
+    SetCurrentBlogId(blog.id);
+    SetPreviewMode(false);
+    SetBlogForm({
+      Title: blog.title || '',
+      Slug: blog.slug || '',
+      Summary: blog.summary || '',
+      Content: blog.content || '',
+      CoverImage: blog.coverImage || '',
+      CoverImageAlt: blog.coverImageAlt || '',
+      Category: blog.category || 'React',
+      Tags: Array.isArray(blog.tags) ? Blog.tags.join(', ') : blog.tags || '',
+      Author: blog.author || '',
+      Published: !!blog.published,
+      Featured: !!blog.featured,
+      SeoTitle: blog.seoTitle || '',
+      SeoDescription: blog.seoDescription || '',
+      CanonicalUrl: blog.canonicalUrl || '',
+      SchemaType: blog.schemaType || 'BlogPosting',
+      NoIndex: !!blog.noIndex,
+      ReadTime: blog.readTime || '1 min read',
+      PublishedAt: blog.publishedAt || null
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    Window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteBlog = async (blogId) => {
-    if (window.confirm("CRITICAL WARNING: Are you certain you want to purge this blog document from the system cluster permanently?")) {
-      try {
-        await deleteDoc(doc(db, 'blogs', blogId));
-        alert("Blog document successfully purged.");
-        if (currentBlogId === blogId) resetBlogForm();
+  Const handleDeleteBlog = async (blogId) => {
+    If (window.confirm("CRITICAL WARNING: Are you certain you want to purge this blog document from the system cluster permanently?")) {
+      Try {
+        Await deleteDoc(doc(db, 'blogs', blogId));
+        Alert("Blog document successfully purged.");
+        If (currentBlogId === blogId) resetBlogForm();
       } catch (error) {
-        console.error("Error purging blog document: ", error);
-        alert("Purge transaction failed.");
+        Console.error("Error purging blog document: ", error);
+        Alert("Purge transaction failed.");
       }
     }
   };
 
   // Metrics Calculations
-  const totalBlogsCount = blogs.length;
-  const publishedBlogsCount = blogs.filter(b => b.published).length;
-  const draftBlogsCount = blogs.filter(b => !b.published).length;
-  const featuredBlogsCount = blogs.filter(b => b.featured).length;
+  Const totalBlogsCount = blogs.length;
+  Const publishedBlogsCount = blogs.filter(b => b.published).length;
+  Const draftBlogsCount = blogs.filter(b => !b.published).length;
+  Const featuredBlogsCount = blogs.filter(b => b.featured).length;
 
   // Pipeline Filter Processing
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title?.toLowerCase().includes(blogSearch.toLowerCase()) || 
-                          blog.summary?.toLowerCase().includes(blogSearch.toLowerCase());
-    const matchesCategory = blogCategoryFilter === 'All' || blog.category === blogCategoryFilter;
-    const matchesStatus = blogStatusFilter === 'All' || 
+  Const filteredBlogs = blogs.filter(blog => {
+    Const matchesSearch = blog.title?.toLowerCase().includes(blogSearch.toLowerCase()) || 
+                          Blog.summary?.toLowerCase().includes(blogSearch.toLowerCase());
+    Const matchesCategory = blogCategoryFilter === 'All' || blog.category === blogCategoryFilter;
+    Const matchesStatus = blogStatusFilter === 'All' || 
                           (blogStatusFilter === 'Published' && blog.published) || 
                           (blogStatusFilter === 'Draft' && !blog.published) ||
                           (blogStatusFilter === 'Featured' && blog.featured);
-    return matchesSearch && matchesCategory && matchesStatus;
+    Return matchesSearch && matchesCategory && matchesStatus;
   });
 
   // Sorting
-  const sortedBlogs = [...filteredBlogs].sort((a, b) => {
-    if (blogSortOrder === 'newest') return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
-    if (blogSortOrder === 'oldest') return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
-    if (blogSortOrder === 'alphabetical') return (a.title || '').localeCompare(b.title || '');
-    return 0;
+  Const sortedBlogs = [...filteredBlogs].sort((a, b) => {
+    If (blogSortOrder === 'newest') return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    If (blogSortOrder === 'oldest') return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+    If (blogSortOrder === 'alphabetical') return (a.title || '').localeCompare(b.title || '');
+    Return 0;
   });
 
   // Pagination
-  const indexOfLastBlog = blogPage * blogsPerPage;
-  const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
-  const currentPaginatedBlogs = sortedBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
-  const totalPages = Math.ceil(sortedBlogs.length / blogsPerPage) || 1;
+  Const indexOfLastBlog = blogPage * blogsPerPage;
+  Const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
+  Const currentPaginatedBlogs = sortedBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
+  Const totalPages = Math.ceil(sortedBlogs.length / blogsPerPage) || 1;
 
   // Initial auth-state check in progress
-  if (authLoading) {
-    return (
+  If (authLoading) {
+    Return (
       <div className="min-h-screen bg-[#0d0d0d] flex flex-col justify-center items-center px-4 font-sans text-white">
         <div className="text-xs font-mono text-slate-500 uppercase tracking-widest animate-pulse">
           Verifying secure session...
@@ -436,8 +497,8 @@ export default function OnyxAdmin() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
+  If (!isAuthenticated) {
+    Return (
       <div className="min-h-screen bg-[#0d0d0d] flex flex-col justify-center items-center px-4 font-sans text-white">
         <div className="max-w-md w-full bg-[#141414] border border-[#00f2fe]/20 rounded-xl p-8 shadow-2xl">
           <div className="flex items-center gap-3 mb-6">
@@ -448,25 +509,25 @@ export default function OnyxAdmin() {
             <div>
               <label className="block text-xs uppercase tracking-widest text-slate-400 mb-2">Admin Email</label>
               <input
-                type="email"
-                required
-                autoComplete="username"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="admin@onyxstacklabs.com"
-                className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-white placeholder-slate-600 outline-none transition-all duration-300"
+                Type="email"
+                Required
+                AutoComplete="username"
+                Value={loginEmail}
+                OnChange={(e) => setLoginEmail(e.target.value)}
+                Placeholder="admin@onyxstacklabs.com"
+                ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-white placeholder-slate-600 outline-none transition-all duration-300"
               />
             </div>
             <div>
               <label className="block text-xs uppercase tracking-widest text-slate-400 mb-2">Password</label>
               <input
-                type="password"
-                required
-                autoComplete="current-password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Enter system access token..."
-                className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-white placeholder-slate-600 outline-none transition-all duration-300"
+                Type="password"
+                Required
+                AutoComplete="current-password"
+                Value={loginPassword}
+                OnChange={(e) => setLoginPassword(e.target.value)}
+                Placeholder="Enter system access token..."
+                ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-white placeholder-slate-600 outline-none transition-all duration-300"
               />
             </div>
 
@@ -477,9 +538,9 @@ export default function OnyxAdmin() {
             )}
 
             <button
-              type="submit"
-              disabled={authSubmitting}
-              className="w-full bg-gradient-to-r from-[#00f2fe] to-[#0575e6] hover:opacity-90 disabled:opacity-50 text-black font-semibold uppercase tracking-wider py-3 rounded-lg transition-all duration-300 shadow-lg shadow-[#00f2fe]/10"
+              Type="submit"
+              Disabled={authSubmitting}
+              ClassName="w-full bg-gradient-to-r from-[#00f2fe] to-[#0575e6] hover:opacity-90 disabled:opacity-50 text-black font-semibold uppercase tracking-wider py-3 rounded-lg transition-all duration-300 shadow-lg shadow-[#00f2fe]/10"
             >
               {authSubmitting ? 'Verifying...' : 'Initialize Console'}
             </button>
@@ -489,7 +550,7 @@ export default function OnyxAdmin() {
     );
   }
 
-  return (
+  Return (
     <div className="min-h-screen bg-[#0a0a0a] text-slate-100 font-sans flex flex-col md:flex-row">
       
       {/* SIDEBAR NAVIGATION */}
@@ -502,9 +563,9 @@ export default function OnyxAdmin() {
           
           <nav className="space-y-2">
             <button
-              onClick={() => setCurrentTab('leads')}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
-                currentTab === 'leads' 
+              OnClick={() => setCurrentTab('leads')}
+              ClassName={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
+                CurrentTab === 'leads' 
                   ? 'bg-gradient-to-r from-[#00f2fe]/10 to-transparent text-[#00f2fe] border-l-2 border-[#00f2fe]' 
                   : 'text-slate-400 hover:text-white hover:bg-[#141414]'
               }`}
@@ -516,9 +577,9 @@ export default function OnyxAdmin() {
             </button>
 
             <button
-              onClick={() => setCurrentTab('blog')}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
-                currentTab === 'blog' 
+              OnClick={() => setCurrentTab('blog')}
+              ClassName={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
+                CurrentTab === 'blog' 
                   ? 'bg-gradient-to-r from-[#00f2fe]/10 to-transparent text-[#00f2fe] border-l-2 border-[#00f2fe]' 
                   : 'text-slate-400 hover:text-white hover:bg-[#141414]'
               }`}
@@ -530,9 +591,9 @@ export default function OnyxAdmin() {
             </button>
 
             <button
-              onClick={() => setCurrentTab('recruitment')}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
-                currentTab === 'recruitment' 
+              OnClick={() => setCurrentTab('recruitment')}
+              ClassName={`w-full flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest font-mono rounded-lg transition-all duration-200 ${
+                CurrentTab === 'recruitment' 
                   ? 'bg-gradient-to-r from-[#00f2fe]/10 to-transparent text-[#00f2fe] border-l-2 border-[#00f2fe]' 
                   : 'text-slate-400 hover:text-white hover:bg-[#141414]'
               }`}
@@ -547,8 +608,8 @@ export default function OnyxAdmin() {
 
         <div className="mt-8 pt-4 border-t border-slate-900 space-y-4">
           <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-mono rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all duration-200"
+            OnClick={handleLogout}
+            ClassName="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-mono rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -603,11 +664,11 @@ export default function OnyxAdmin() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {leads.map((lead) => (
                     <div 
-                      key={lead.id} 
-                      className={`bg-[#121212] border rounded-xl p-6 transition-all duration-300 flex flex-col justify-between ${
-                        lead.status === 'approved' ? 'border-[#00f2fe]/30 shadow-md shadow-[#00f2fe]/5' :
-                        lead.status === 'contracted' ? 'border-emerald-500/30' :
-                        lead.status === 'rejected' ? 'border-red-900/40 opacity-40 hover:opacity-60' : 'border-slate-800'
+                      Key={lead.id} 
+                      ClassName={`bg-[#121212] border rounded-xl p-6 transition-all duration-300 flex flex-col justify-between ${
+                        Lead.status === 'approved' ? 'border-[#00f2fe]/30 shadow-md shadow-[#00f2fe]/5' :
+                        Lead.status === 'contracted' ? 'border-emerald-500/30' :
+                        Lead.status === 'rejected' ? 'border-red-900/40 opacity-40 hover:opacity-60' : 'border-slate-800'
                       }`}
                     >
                       <div>
@@ -617,9 +678,9 @@ export default function OnyxAdmin() {
                             <p className="text-xs text-slate-400 font-mono mt-0.5">{lead.email}</p>
                           </div>
                           <span className={`text-[10px] uppercase font-mono font-bold tracking-widest px-2.5 py-1 rounded border ${
-                            lead.status === 'approved' ? 'bg-[#00f2fe]/10 text-[#00f2fe] border-[#00f2fe]/20' :
-                            lead.status === 'contracted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                            lead.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                            Lead.status === 'approved' ? 'bg-[#00f2fe]/10 text-[#00f2fe] border-[#00f2fe]/20' :
+                            Lead.status === 'contracted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                            Lead.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                           }`}>
                             {lead.status?.replace('_', ' ') || 'unassigned'}
                           </span>
@@ -647,7 +708,7 @@ export default function OnyxAdmin() {
                           <div className="col-span-2 border-t border-slate-900 pt-2 mt-1">
                             <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">Transmission Timestamp</span>
                             <span className="text-slate-400 text-[11px]">
-                              {lead.timestamp?.seconds ? new Date(lead.timestamp.seconds * 1000).toLocaleString() : 'N/A'}
+                              {lead.timestamp?.seconds ? New Date(lead.timestamp.seconds * 1000).toLocaleString() : 'N/A'}
                             </span>
                           </div>
                         </div>
@@ -656,23 +717,23 @@ export default function OnyxAdmin() {
                       <div className="border-t border-slate-900 pt-4 mt-2 flex flex-wrap gap-2 justify-between items-center">
                         <div className="flex gap-1">
                           <button
-                            onClick={() => updateLeadStatus(lead.id, 'approved')}
-                            disabled={lead.status === 'approved'}
-                            className="px-3 py-1.5 bg-[#00f2fe]/10 hover:bg-[#00f2fe]/20 text-[#00f2fe] disabled:opacity-40 disabled:hover:bg-[#00f2fe]/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
+                            OnClick={() => updateLeadStatus(lead.id, 'approved')}
+                            Disabled={lead.status === 'approved'}
+                            ClassName="px-3 py-1.5 bg-[#00f2fe]/10 hover:bg-[#00f2fe]/20 text-[#00f2fe] disabled:opacity-40 disabled:hover:bg-[#00f2fe]/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
                           >
                             Approve
                           </button>
                           <button
-                            onClick={() => updateLeadStatus(lead.id, 'contracted')}
-                            disabled={lead.status === 'contracted'}
-                            className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 disabled:opacity-40 disabled:hover:bg-emerald-500/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
+                            OnClick={() => updateLeadStatus(lead.id, 'contracted')}
+                            Disabled={lead.status === 'contracted'}
+                            ClassName="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 disabled:opacity-40 disabled:hover:bg-emerald-500/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
                           >
                             Contracted
                           </button>
                           <button
-                            onClick={() => updateLeadStatus(lead.id, 'rejected')}
-                            disabled={lead.status === 'rejected'}
-                            className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 disabled:opacity-40 disabled:hover:bg-red-500/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
+                            OnClick={() => updateLeadStatus(lead.id, 'rejected')}
+                            Disabled={lead.status === 'rejected'}
+                            ClassName="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 disabled:opacity-40 disabled:hover:bg-red-500/10 text-xs font-semibold rounded uppercase tracking-wider transition-all"
                           >
                             Reject
                           </button>
@@ -680,8 +741,8 @@ export default function OnyxAdmin() {
 
                         {lead.phone && (
                           <button
-                            onClick={() => triggerWhatsAppCommunication(lead.phone, lead.companyName)}
-                            className="px-3 py-1.5 bg-white hover:bg-slate-200 text-black text-xs font-bold rounded uppercase tracking-wider transition-all flex items-center gap-1"
+                            OnClick={() => triggerWhatsAppCommunication(lead.phone, lead.companyName)}
+                            ClassName="px-3 py-1.5 bg-white hover:bg-slate-200 text-black text-xs font-bold rounded uppercase tracking-wider transition-all flex items-center gap-1"
                           >
                             <span>Launch Loop</span>
                           </button>
@@ -727,15 +788,26 @@ export default function OnyxAdmin() {
                       {isEditing ? 'Modify Active Blog Payload' : 'Compile New Knowledge Node'}
                     </h2>
                   </div>
-                  {isEditing && (
+                  <div className="flex gap-2">
                     <button
-                      type="button"
-                      onClick={resetBlogForm}
-                      className="text-xs font-mono px-2.5 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all"
+                      Type="button"
+                      OnClick={handleGenerateAiContent}
+                      Disabled={isAiGenerating}
+                      ClassName="text-xs font-mono px-3 py-1.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold disabled:opacity-50 transition-all flex items-center gap-1.5 shadow-md shadow-indigo-500/10"
                     >
-                      Abort Modification Loop
+                      {isAiGenerating ? 'Generating...' : '⚡ AI Auto-Generate Content'}
                     </button>
-                  )}
+
+                    {isEditing && (
+                      <button
+                        Type="button"
+                        OnClick={resetBlogForm}
+                        ClassName="text-xs font-mono px-2.5 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all"
+                      >
+                        Abort Modification Loop
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {previewMode ? (
@@ -743,9 +815,9 @@ export default function OnyxAdmin() {
                     <div className="flex justify-between items-center border-b border-slate-900 pb-4">
                       <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">// Virtual DOM Preview Node</span>
                       <button 
-                        type="button" 
-                        onClick={() => setPreviewMode(false)}
-                        className="text-xs font-mono px-3 py-1.5 bg-[#1a1a1a] border border-slate-800 rounded text-slate-300 hover:text-white"
+                        Type="button" 
+                        OnClick={() => setPreviewMode(false)}
+                        ClassName="text-xs font-mono px-3 py-1.5 bg-[#1a1a1a] border border-slate-800 rounded text-slate-300 hover:text-white"
                       >
                         Return to Workspace Editor
                       </button>
@@ -753,10 +825,10 @@ export default function OnyxAdmin() {
 
                     {blogForm.coverImage ? (
                       <img 
-                        src={blogForm.coverImage} 
-                        alt={blogForm.coverImageAlt || "Cover Preview"} 
-                        className="w-full h-64 object-cover rounded-xl border border-slate-800"
-                        onError={(e) => { e.target.style.display = 'none'; }}
+                        Src={blogForm.coverImage} 
+                        Alt={blogForm.coverImageAlt || "Cover Preview"} 
+                        ClassName="w-full h-64 object-cover rounded-xl border border-slate-800"
+                        OnError={(e) => { e.target.style.display = 'none'; }}
                       />
                     ) : (
                       <div className="w-full h-32 bg-[#1a1a1a] rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-xs font-mono text-slate-600">
@@ -799,13 +871,13 @@ export default function OnyxAdmin() {
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Article Headline Title</label>
                           <input
-                            type="text"
-                            name="title"
-                            required
-                            value={blogForm.title}
-                            onChange={handleBlogFormChange}
-                            placeholder="Orchestrating Sub-Second Inference Loops..."
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-white placeholder-slate-600 outline-none transition-all"
+                            Type="text"
+                            Name="title"
+                            Required
+                            Value={blogForm.title}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="Orchestrating Sub-Second Inference Loops..."
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
@@ -813,22 +885,22 @@ export default function OnyxAdmin() {
                           <div>
                             <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Static Slug Router Node (Auto/Manual)</label>
                             <input
-                              type="text"
-                              name="slug"
-                              required
-                              value={blogForm.slug}
-                              onChange={handleBlogFormChange}
-                              placeholder="gemini-cognitive-fabrics"
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                              Type="text"
+                              Name="slug"
+                              Required
+                              Value={blogForm.slug}
+                              OnChange={handleBlogFormChange}
+                              Placeholder="gemini-cognitive-fabrics"
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
                             />
                           </div>
                           <div>
                             <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Structural Category Faculty</label>
                             <select
-                              name="category"
-                              value={blogForm.category}
-                              onChange={handleBlogFormChange}
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs text-white outline-none transition-all"
+                              Name="category"
+                              Value={blogForm.category}
+                              OnChange={handleBlogFormChange}
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs text-white outline-none transition-all"
                             >
                               {["AI", "Web Development", "Mobile Apps", "React", "Firebase", "UI/UX", "Business", "Case Studies"].map(c => (
                                 <option key={c} value={c}>{c}</option>
@@ -840,13 +912,13 @@ export default function OnyxAdmin() {
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Editorial Executive Summary</label>
                           <textarea
-                            name="summary"
-                            required
-                            rows="2"
-                            value={blogForm.summary}
-                            onChange={handleBlogFormChange}
-                            placeholder="A structural analysis detailing core optimizations across layout containers..."
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs text-white placeholder-slate-600 outline-none transition-all resize-none"
+                            Name="summary"
+                            Required
+                            Rows="2"
+                            Value={blogForm.summary}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="A structural analysis detailing core optimizations across layout containers..."
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2.5 text-xs text-white placeholder-slate-600 outline-none transition-all resize-none"
                           />
                         </div>
 
@@ -863,13 +935,13 @@ export default function OnyxAdmin() {
                           </div>
 
                           <textarea
-                            name="content"
-                            required
-                            rows="12"
-                            value={blogForm.content}
-                            onChange={handleBlogFormChange}
-                            placeholder="Example Output Syntax:&#10;&#10;### 1. Architectural Foundations&#10;This is a normal paragraph layout block row.&#10;&#10;Key Parameters Checklist:&#10;- Optimize structural rendering hooks&#10;- Route clean client-side nodes&#10;&#10;// Code block segment (Start line with double forward slashes)&#10;// const activeNodeCluster = await getDocs(q);"
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-xs font-sans text-white placeholder-slate-600 outline-none transition-all resize-y leading-relaxed selection:bg-cyan-500/20"
+                            Name="content"
+                            Required
+                            Rows="12"
+                            Value={blogForm.content}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="Example Output Syntax:&#10;&#10;### 1. Architectural Foundations&#10;This is a normal paragraph layout block row.&#10;&#10;Key Parameters Checklist:&#10;- Optimize structural rendering hooks&#10;- Route clean client-side nodes&#10;&#10;// Code block segment (Start line with double forward slashes)&#10;// const activeNodeCluster = await getDocs(q);"
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-3 text-xs font-sans text-white placeholder-slate-600 outline-none transition-all resize-y leading-relaxed selection:bg-cyan-500/20"
                           />
                           <div className="text-[10px] font-mono text-slate-500 mt-1 flex justify-between">
                             <span>Computed Output Pipeline: <strong className="text-cyan-400">{blogForm.readTime}</strong></span>
@@ -885,49 +957,49 @@ export default function OnyxAdmin() {
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Author Signature</label>
                           <input
-                            type="text"
-                            name="author"
-                            required
-                            value={blogForm.author}
-                            onChange={handleBlogFormChange}
-                            placeholder="Alex Rivers"
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
+                            Type="text"
+                            Name="author"
+                            Required
+                            Value={blogForm.author}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="Alex Rivers"
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Cover Image CDN Target</label>
                           <input
-                            type="text"
-                            name="coverImage"
-                            value={blogForm.coverImage}
-                            onChange={handleBlogFormChange}
-                            placeholder="https://images.unsplash.com/..."
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                            Type="text"
+                            Name="coverImage"
+                            Value={blogForm.coverImage}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="https://images.unsplash.com/..."
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Cover Image ALT Text (SEO)</label>
                           <input
-                            type="text"
-                            name="coverImageAlt"
-                            value={blogForm.coverImageAlt}
-                            onChange={handleBlogFormChange}
-                            placeholder="Graphic illustration describing the blog title"
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
+                            Type="text"
+                            Name="coverImageAlt"
+                            Value={blogForm.coverImageAlt}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="Graphic illustration describing the blog title"
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-slate-400 mb-1.5">Tags Indices (Comma Separated)</label>
                           <input
-                            type="text"
-                            name="tags"
-                            value={blogForm.tags}
-                            onChange={handleBlogFormChange}
-                            placeholder="Gemini AI, Tailwind, Architecture"
-                            className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                            Type="text"
+                            Name="tags"
+                            Value={blogForm.tags}
+                            OnChange={handleBlogFormChange}
+                            Placeholder="Gemini AI, Tailwind, Architecture"
+                            ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-4 py-2 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
                           />
                         </div>
 
@@ -945,12 +1017,12 @@ export default function OnyxAdmin() {
                               </span>
                             </div>
                             <input
-                              type="text"
-                              name="seoTitle"
-                              value={blogForm.seoTitle}
-                              onChange={handleBlogFormChange}
-                              placeholder="SEO Meta Custom Title Token"
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
+                              Type="text"
+                              Name="seoTitle"
+                              Value={blogForm.seoTitle}
+                              OnChange={handleBlogFormChange}
+                              Placeholder="SEO Meta Custom Title Token"
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all"
                             />
                           </div>
 
@@ -962,34 +1034,34 @@ export default function OnyxAdmin() {
                               </span>
                             </div>
                             <textarea
-                              name="seoDescription"
-                              rows="2"
-                              value={blogForm.seoDescription}
-                              onChange={handleBlogFormChange}
-                              placeholder="SEO Description Parameter Field Index"
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all resize-none"
+                              Name="seoDescription"
+                              Rows="2"
+                              Value={blogForm.seoDescription}
+                              OnChange={handleBlogFormChange}
+                              Placeholder="SEO Description Parameter Field Index"
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 outline-none transition-all resize-none"
                             />
                           </div>
 
                           <div>
                             <label className="block text-[10px] font-mono text-slate-400 mb-1">Canonical URL Override</label>
                             <input
-                              type="text"
-                              name="canonicalUrl"
-                              value={blogForm.canonicalUrl}
-                              onChange={handleBlogFormChange}
-                              placeholder="https://onyxstacklabs.com/blog/custom-canonical"
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
+                              Type="text"
+                              Name="canonicalUrl"
+                              Value={blogForm.canonicalUrl}
+                              OnChange={handleBlogFormChange}
+                              Placeholder="https://onyxstacklabs.com/blog/custom-canonical"
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-slate-600 outline-none transition-all"
                             />
                           </div>
 
                           <div>
                             <label className="block text-[10px] font-mono text-slate-400 mb-1">Structured Schema Markup Type</label>
                             <select
-                              name="schemaType"
-                              value={blogForm.schemaType}
-                              onChange={handleBlogFormChange}
-                              className="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs text-white outline-none transition-all"
+                              Name="schemaType"
+                              Value={blogForm.schemaType}
+                              OnChange={handleBlogFormChange}
+                              ClassName="w-full bg-[#1a1a1a] border border-slate-800 focus:border-[#00f2fe] rounded-lg px-3 py-1.5 text-xs text-white outline-none transition-all"
                             >
                               <option value="BlogPosting">BlogPosting (Standard)</option>
                               <option value="TechArticle">TechArticle (Technical)</option>
@@ -1003,11 +1075,11 @@ export default function OnyxAdmin() {
                             <span className="text-xs font-mono uppercase tracking-wider text-slate-300">Set Blog Live</span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input 
-                                type="checkbox" 
-                                name="published"
-                                checked={blogForm.published}
-                                onChange={handleBlogFormChange}
-                                className="sr-only peer" 
+                                Type="checkbox" 
+                                Name="published"
+                                Checked={blogForm.published}
+                                OnChange={handleBlogFormChange}
+                                ClassName="sr-only peer" 
                               />
                               <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-black"></div>
                             </label>
@@ -1017,11 +1089,11 @@ export default function OnyxAdmin() {
                             <span className="text-xs font-mono uppercase tracking-wider text-slate-300">Feature Headline</span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input 
-                                type="checkbox" 
-                                name="featured"
-                                checked={blogForm.featured}
-                                onChange={handleBlogFormChange}
-                                className="sr-only peer" 
+                                Type="checkbox" 
+                                Name="featured"
+                                Checked={blogForm.featured}
+                                OnChange={handleBlogFormChange}
+                                ClassName="sr-only peer" 
                               />
                               <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500 peer-checked:after:bg-black"></div>
                             </label>
@@ -1031,11 +1103,11 @@ export default function OnyxAdmin() {
                             <span className="text-xs font-mono uppercase tracking-wider text-slate-300">Robots NoIndex Flag</span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input 
-                                type="checkbox" 
-                                name="noIndex"
-                                checked={blogForm.noIndex}
-                                onChange={handleBlogFormChange}
-                                className="sr-only peer" 
+                                Type="checkbox" 
+                                Name="noIndex"
+                                Checked={blogForm.noIndex}
+                                OnChange={handleBlogFormChange}
+                                ClassName="sr-only peer" 
                               />
                               <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500 peer-checked:after:bg-black"></div>
                             </label>
@@ -1047,24 +1119,24 @@ export default function OnyxAdmin() {
 
                     <div className="border-t border-slate-900 pt-4 flex flex-wrap items-center justify-between gap-4">
                       <button
-                        type="button"
-                        onClick={() => setPreviewMode(true)}
-                        className="px-4 py-2 border border-slate-800 bg-[#161616] text-slate-300 hover:text-white rounded-lg text-xs font-mono tracking-wider transition-all"
+                        Type="button"
+                        OnClick={() => setPreviewMode(true)}
+                        ClassName="px-4 py-2 border border-slate-800 bg-[#161616] text-slate-300 hover:text-white rounded-lg text-xs font-mono tracking-wider transition-all"
                       >
                         Inspect Node Blueprint Preview
                       </button>
 
                       <div className="flex gap-2">
                         <button
-                          type="button"
-                          onClick={() => handleSaveBlog(null, false)}
-                          className="px-4 py-2 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-lg text-xs font-mono tracking-wider transition-all"
+                          Type="button"
+                          OnClick={() => handleSaveBlog(null, false)}
+                          ClassName="px-4 py-2 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-lg text-xs font-mono tracking-wider transition-all"
                         >
                           Draft State Caching
                         </button>
                         <button
-                          type="submit"
-                          className="px-5 py-2 bg-gradient-to-r from-[#00f2fe] to-[#0575e6] text-black font-bold uppercase text-xs tracking-widest rounded-lg transition-all shadow-md shadow-[#00f2fe]/10"
+                          Type="submit"
+                          ClassName="px-5 py-2 bg-gradient-to-r from-[#00f2fe] to-[#0575e6] text-black font-bold uppercase text-xs tracking-widest rounded-lg transition-all shadow-md shadow-[#00f2fe]/10"
                         >
                           {isEditing ? 'Commit Node Updates' : 'Publish to Edge Registry'}
                         </button>
@@ -1084,17 +1156,17 @@ export default function OnyxAdmin() {
 
                   <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
                     <input
-                      type="text"
-                      placeholder="Search registry rows..."
-                      value={blogSearch}
-                      onChange={(e) => setBlogSearch(e.target.value)}
-                      className="bg-[#1a1a1a] border border-slate-800 rounded px-3 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-[#00f2fe]"
+                      Type="text"
+                      Placeholder="Search registry rows..."
+                      Value={blogSearch}
+                      OnChange={(e) => setBlogSearch(e.target.value)}
+                      ClassName="bg-[#1a1a1a] border border-slate-800 rounded px-3 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-[#00f2fe]"
                     />
                     
                     <select
-                      value={blogCategoryFilter}
-                      onChange={(e) => setBlogCategoryFilter(e.target.value)}
-                      className="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
+                      Value={blogCategoryFilter}
+                      OnChange={(e) => setBlogCategoryFilter(e.target.value)}
+                      ClassName="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
                     >
                       <option value="All">All Categories</option>
                       {["AI", "Web Development", "Mobile Apps", "React", "Firebase", "UI/UX", "Business", "Case Studies"].map(c => (
@@ -1103,9 +1175,9 @@ export default function OnyxAdmin() {
                     </select>
 
                     <select
-                      value={blogStatusFilter}
-                      onChange={(e) => setBlogStatusFilter(e.target.value)}
-                      className="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
+                      Value={blogStatusFilter}
+                      OnChange={(e) => setBlogStatusFilter(e.target.value)}
+                      ClassName="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
                     >
                       <option value="All">All Statuses</option>
                       <option value="Published">Published Node</option>
@@ -1114,9 +1186,9 @@ export default function OnyxAdmin() {
                     </select>
 
                     <select
-                      value={blogSortOrder}
-                      onChange={(e) => setBlogSortOrder(e.target.value)}
-                      className="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
+                      Value={blogSortOrder}
+                      OnChange={(e) => setBlogSortOrder(e.target.value)}
+                      ClassName="bg-[#1a1a1a] border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 outline-none"
                     >
                       <option value="newest">Newest Sequence</option>
                       <option value="oldest">Oldest Sequence</option>
@@ -1142,8 +1214,8 @@ export default function OnyxAdmin() {
 
                     {currentPaginatedBlogs.map((blog) => (
                       <div 
-                        key={blog.id}
-                        className="grid grid-cols-1 sm:grid-cols-12 items-center gap-4 bg-[#161616]/70 border border-slate-900 rounded-xl p-4 transition-all hover:border-slate-800"
+                        Key={blog.id}
+                        ClassName="grid grid-cols-1 sm:grid-cols-12 items-center gap-4 bg-[#161616]/70 border border-slate-900 rounded-xl p-4 transition-all hover:border-slate-800"
                       >
                         <div className="col-span-1 sm:col-span-5">
                           <div className="text-sm font-bold text-white tracking-wide truncate">{blog.title}</div>
@@ -1158,7 +1230,7 @@ export default function OnyxAdmin() {
 
                         <div className="col-span-1 sm:col-span-2 flex flex-wrap gap-1.5">
                           <span className={`px-2 py-0.5 rounded text-[9px] font-mono uppercase tracking-widest font-bold border ${
-                            blog.published 
+                            Blog.published 
                               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
                               : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                           }`}>
@@ -1178,23 +1250,23 @@ export default function OnyxAdmin() {
 
                         <div className="col-span-1 sm:col-span-3 flex justify-end gap-1.5">
                           <button
-                            onClick={() => {
-                              handleEditSelect(blog);
-                              setPreviewMode(true);
+                            OnClick={() => {
+                              HandleEditSelect(blog);
+                              SetPreviewMode(true);
                             }}
-                            className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded text-[10px] font-mono transition-all"
+                            ClassName="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded text-[10px] font-mono transition-all"
                           >
                             Preview
                           </button>
                           <button
-                            onClick={() => handleEditSelect(blog)}
-                            className="px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 rounded text-[10px] font-mono transition-all"
+                            OnClick={() => handleEditSelect(blog)}
+                            ClassName="px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 rounded text-[10px] font-mono transition-all"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteBlog(blog.id)}
-                            className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded text-[10px] font-mono transition-all"
+                            OnClick={() => handleDeleteBlog(blog.id)}
+                            ClassName="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded text-[10px] font-mono transition-all"
                           >
                             Purge
                           </button>
@@ -1208,16 +1280,16 @@ export default function OnyxAdmin() {
                       </div>
                       <div className="flex gap-1">
                         <button
-                          disabled={blogPage === 1}
-                          onClick={() => setBlogPage(prev => prev - 1)}
-                          className="px-2.5 py-1 bg-slate-900 border border-slate-800 disabled:opacity-30 rounded hover:text-white"
+                          Disabled={blogPage === 1}
+                          OnClick={() => setBlogPage(prev => prev - 1)}
+                          ClassName="px-2.5 py-1 bg-slate-900 border border-slate-800 disabled:opacity-30 rounded hover:text-white"
                         >
                           Prev
                         </button>
                         <button
-                          disabled={blogPage === totalPages}
-                          onClick={() => setBlogPage(prev => prev + 1)}
-                          className="px-2.5 py-1 bg-slate-900 border border-slate-800 disabled:opacity-30 rounded hover:text-white"
+                          Disabled={blogPage === totalPages}
+                          OnClick={() => setBlogPage(prev => prev + 1)}
+                          ClassName="px-2.5 py-1 bg-slate-900 border border-slate-800 disabled:opacity-30 rounded hover:text-white"
                         >
                           Next
                         </button>
@@ -1238,12 +1310,12 @@ export default function OnyxAdmin() {
               <div className="flex gap-2 border-b border-slate-900 pb-3">
                 {['pending', 'shortlisted', 'archived'].map((tab) => (
                   <button
-                    key={tab}
-                    onClick={() => setActiveCandidateTab(tab)}
-                    className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 border ${
-                      activeCandidateTab === tab
-                        ? tab === 'pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
-                          tab === 'shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                    Key={tab}
+                    OnClick={() => setActiveCandidateTab(tab)}
+                    ClassName={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 border ${
+                      ActiveCandidateTab === tab
+                        ? Tab === 'pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
+                          Tab === 'shortlisted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
                           'bg-red-500/10 text-red-400 border-red-500/30'
                         : 'bg-[#121212] border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                     }`}
@@ -1263,10 +1335,10 @@ export default function OnyxAdmin() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {candidates.map((candidate) => (
                     <div 
-                      key={candidate.id} 
-                      className={`bg-[#121212] border rounded-xl p-6 transition-all duration-300 flex flex-col justify-between ${
-                        candidate.status === 'shortlisted' ? 'border-emerald-500/30 shadow-md shadow-emerald-500/5' :
-                        candidate.status === 'archived' ? 'border-red-900/40 opacity-50 hover:opacity-75' : 'border-slate-800'
+                      Key={candidate.id} 
+                      ClassName={`bg-[#121212] border rounded-xl p-6 transition-all duration-300 flex flex-col justify-between ${
+                        Candidate.status === 'shortlisted' ? 'border-emerald-500/30 shadow-md shadow-emerald-500/5' :
+                        Candidate.status === 'archived' ? 'border-red-900/40 opacity-50 hover:opacity-75' : 'border-slate-800'
                       }`}
                     >
                       <div>
@@ -1276,18 +1348,18 @@ export default function OnyxAdmin() {
                               <h3 className="text-lg font-bold text-white tracking-wide">{candidate.name || 'Anonymous Applicant'}</h3>
                               <div className="flex gap-1 ml-2">
                                 <button
-                                  onClick={() => updateCandidateStatus(candidate.id, 'shortlisted')}
-                                  title="Shortlist Candidate"
-                                  className={`p-1 rounded transition-all ${candidate.status === 'shortlisted' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-600 hover:text-emerald-400 hover:bg-[#1a1a1a]'}`}
+                                  OnClick={() => updateCandidateStatus(candidate.id, 'shortlisted')}
+                                  Title="Shortlist Candidate"
+                                  ClassName={`p-1 rounded transition-all ${candidate.status === 'shortlisted' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-600 hover:text-emerald-400 hover:bg-[#1a1a1a]'}`}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                                   </svg>
                                 </button>
                                 <button
-                                  onClick={() => updateCandidateStatus(candidate.id, 'archived')}
-                                  title="Archive Candidate"
-                                  className={`p-1 rounded transition-all ${candidate.status === 'archived' ? 'text-red-400 bg-red-500/10' : 'text-slate-600 hover:text-red-400 hover:bg-[#1a1a1a]'}`}
+                                  OnClick={() => updateCandidateStatus(candidate.id, 'archived')}
+                                  Title="Archive Candidate"
+                                  ClassName={`p-1 rounded transition-all ${candidate.status === 'archived' ? 'text-red-400 bg-red-500/10' : 'text-slate-600 hover:text-red-400 hover:bg-[#1a1a1a]'}`}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -1318,7 +1390,7 @@ export default function OnyxAdmin() {
                           <div className="border-t border-slate-900 pt-2 mt-1">
                             <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">Submission Timestamp</span>
                             <span className="text-slate-400 text-[11px]">
-                              {candidate.submittedAt?.seconds ? new Date(candidate.submittedAt.seconds * 1000).toLocaleString() : 'N/A'}
+                              {candidate.submittedAt?.seconds ? New Date(candidate.submittedAt.seconds * 1000).toLocaleString() : 'N/A'}
                             </span>
                           </div>
                         </div>
@@ -1326,15 +1398,15 @@ export default function OnyxAdmin() {
 
                       <div className="flex justify-end gap-2 border-t border-slate-900 pt-4 mt-2">
                         <button
-                          onClick={() => triggerEmailCommunication(candidate.email, candidate.name, candidate.role || 'Developer')}
-                          className="px-3 py-1.5 bg-[#00f2fe]/10 hover:bg-[#00f2fe]/20 text-[#00f2fe] text-xs font-semibold rounded uppercase tracking-wider transition-all border border-[#00f2fe]/20"
+                          OnClick={() => triggerEmailCommunication(candidate.email, candidate.name, candidate.role || 'Developer')}
+                          ClassName="px-3 py-1.5 bg-[#00f2fe]/10 hover:bg-[#00f2fe]/20 text-[#00f2fe] text-xs font-semibold rounded uppercase tracking-wider transition-all border border-[#00f2fe]/20"
                         >
                           Send Email
                         </button>
                         {candidate.phone && (
                           <button
-                            onClick={() => triggerWhatsAppCommunication(candidate.phone, candidate.name)}
-                            className="px-3 py-1.5 bg-white hover:bg-slate-200 text-black text-xs font-bold rounded uppercase tracking-wider transition-all flex items-center gap-1"
+                            OnClick={() => triggerWhatsAppCommunication(candidate.phone, candidate.name)}
+                            ClassName="px-3 py-1.5 bg-white hover:bg-slate-200 text-black text-xs font-bold rounded uppercase tracking-wider transition-all flex items-center gap-1"
                           >
                             <span>Contact on WhatsApp</span>
                           </button>
