@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Google Gen AI SDK integration for automated content generation
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 // Exact relative trajectory mapping targeting the real firebase module location
 import { db, auth } from '../config/firebase'; 
@@ -305,26 +305,44 @@ STRICT REQUIREMENTS:
 5. INTERNAL LINKING: Include exactly 2-3 contextual internal markdown links pointing to real OnyxStack Labs pages, chosen naturally based on relevance to the topic. ONLY use these real paths, never invent new ones: https://onyxstacklabs.com/tools, https://onyxstacklabs.com/pricing, https://onyxstacklabs.com/services, https://onyxstacklabs.com/careers, https://onyxstacklabs.com/projects, https://onyxstacklabs.com/blog.
 6. CREDIBILITY: Reference real, verifiable industry practices and concepts only — never fabricate statistics, case studies, or client names.
 
-Return ONLY a raw JSON object (no markdown code fences, no commentary) with these exact keys:
-{
-  "summary": "1-2 sentence engaging summary for blog listing cards",
-  "content": "Full article body in Markdown as described above",
-  "seoTitle": "SEO meta title, max 60 characters, includes primary keyword",
-  "seoDescription": "SEO meta description, max 160 characters, includes primary keyword, written to earn clicks",
-  "tags": "comma-separated string of 4-6 relevant keyword tags"
-}`;
+Write the "content" field as a single Markdown string. Use \\n for line breaks within it — do not use raw line breaks.`;
 
       const response = await ai.models.generateContent({
         model: GEMINI_MODEL,
         contents: prompt,
         config: {
-          responseMimeType: "application/json"
+          responseMimeType: "application/json",
+          // Native structured output: Gemini enforces valid JSON server-side,
+          // eliminating malformed/unescaped-character parse failures at the source.
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING, description: "1-2 sentence engaging summary for blog listing cards" },
+              content: { type: Type.STRING, description: "Full article body in Markdown" },
+              seoTitle: { type: Type.STRING, description: "SEO meta title, max 60 characters" },
+              seoDescription: { type: Type.STRING, description: "SEO meta description, max 160 characters" },
+              tags: { type: Type.STRING, description: "Comma-separated string of 4-6 relevant keyword tags" }
+            },
+            required: ["summary", "content", "seoTitle", "seoDescription", "tags"]
+          }
         }
       });
 
-      // Defensive cleanup in case the model wraps JSON in code fences despite responseMimeType
       const rawText = (response.text || '').replace(/```json|```/g, '').trim();
-      const generatedData = JSON.parse(rawText);
+
+      // Safety net: escape any stray raw control characters (unescaped
+      // newlines/tabs/carriage returns) that could still slip through
+      // and break JSON.parse, even with responseSchema enforced above.
+      const sanitizedText = rawText.replace(/[\u0000-\u001F]/g, (ch) => {
+        switch (ch) {
+          case '\n': return '\\n';
+          case '\r': return '\\r';
+          case '\t': return '\\t';
+          default: return '';
+        }
+      });
+
+      const generatedData = JSON.parse(sanitizedText);
 
       setBlogForm(prev => ({
         ...prev,
