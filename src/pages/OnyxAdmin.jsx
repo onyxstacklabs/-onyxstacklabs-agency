@@ -14,6 +14,11 @@ const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 // env var if Google deprecates this without needing a code redeploy.
 const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-3.6-flash';
 
+// Unsplash Access Key for automatic, copyright-free cover image sourcing.
+// Get a free key at https://unsplash.com/developers and set
+// VITE_UNSPLASH_ACCESS_KEY in Vercel environment variables.
+const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
+
 // Correctly escapes control characters (raw newlines/tabs) that appear
 // INSIDE JSON string values, while leaving structural whitespace between
 // JSON tokens untouched (a naive blanket-replace breaks pretty-printed JSON).
@@ -61,6 +66,34 @@ function sanitizeJsonControlChars(text) {
   }
 
   return result;
+}
+
+// Fetches a copyright-free, topic-relevant cover photo from Unsplash's
+// official Search API. Returns null (never throws) if the key is missing
+// or the request fails, so it never blocks blog content generation.
+async function fetchStockCoverImage(searchQuery) {
+  if (!UNSPLASH_ACCESS_KEY || !searchQuery) return null;
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape&content_filter=high`,
+      {
+        headers: {
+          Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`
+        }
+      }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const result = data?.results?.[0];
+    if (!result) return null;
+    return {
+      url: result.urls?.regular || result.urls?.full || null,
+      photographerName: result.user?.name || null
+    };
+  } catch (err) {
+    console.error('Unsplash cover image fetch failed:', err);
+    return null;
+  }
 }
 
 export default function OnyxAdmin() {
@@ -328,6 +361,8 @@ export default function OnyxAdmin() {
   };
 
   // Gemini AI Content Generation Handler (Enterprise-grade, humanized, SEO/GEO/AEO optimized)
+  // Also auto-sources a copyright-free cover image via Unsplash and fills
+  // author/alt-text so no field is left empty after generation.
   const handleGenerateAiContent = async () => {
     if (!blogForm.title.trim()) {
       alert("Please specify an Article Headline Title first to guide the AI generation.");
@@ -353,6 +388,8 @@ STRICT REQUIREMENTS:
 4. SEO KEYWORDS: Naturally weave the primary keyword and 3-5 relevant long-tail keywords into headings and body text — no keyword stuffing.
 5. INTERNAL LINKING: Include exactly 2-3 contextual internal markdown links pointing to real OnyxStack Labs pages, chosen naturally based on relevance to the topic. ONLY use these real paths, never invent new ones: https://onyxstacklabs.com/tools, https://onyxstacklabs.com/pricing, https://onyxstacklabs.com/services, https://onyxstacklabs.com/careers, https://onyxstacklabs.com/projects, https://onyxstacklabs.com/blog.
 6. CREDIBILITY: Reference real, verifiable industry practices and concepts only — never fabricate statistics, case studies, or client names.
+7. COVER IMAGE ALT TEXT: Write a descriptive, SEO-friendly alt text for the cover image, under 125 characters, describing the visual concept (not starting with "Image of").
+8. IMAGE SEARCH QUERY: Provide a short, visual, stock-photo-friendly search phrase (2-4 words, concrete nouns, e.g. "developer coding laptop" not abstract terms) that would return a relevant photo for this article's cover image.
 
 Write the "content" field as a single Markdown string. Use \\n for line breaks within it — do not use raw line breaks.`;
 
@@ -369,9 +406,11 @@ Write the "content" field as a single Markdown string. Use \\n for line breaks w
               content: { type: Type.STRING, description: "Full article body in Markdown" },
               seoTitle: { type: Type.STRING, description: "SEO meta title, max 60 characters" },
               seoDescription: { type: Type.STRING, description: "SEO meta description, max 160 characters" },
-              tags: { type: Type.STRING, description: "Comma-separated string of 4-6 relevant keyword tags" }
+              tags: { type: Type.STRING, description: "Comma-separated string of 4-6 relevant keyword tags" },
+              coverImageAlt: { type: Type.STRING, description: "Descriptive SEO alt text for the cover image, under 125 characters" },
+              imageSearchQuery: { type: Type.STRING, description: "Short 2-4 word stock-photo search phrase for the cover image" }
             },
-            required: ["summary", "content", "seoTitle", "seoDescription", "tags"]
+            required: ["summary", "content", "seoTitle", "seoDescription", "tags", "coverImageAlt", "imageSearchQuery"]
           }
         }
       });
@@ -385,16 +424,29 @@ Write the "content" field as a single Markdown string. Use \\n for line breaks w
 
       const generatedData = JSON.parse(sanitizedText);
 
+      // Fetch a real, copyright-free cover photo based on the AI's
+      // suggested search query. Never blocks the content update below.
+      const stockImage = await fetchStockCoverImage(generatedData.imageSearchQuery || blogForm.title);
+
       setBlogForm(prev => ({
         ...prev,
         summary: generatedData.summary || prev.summary,
         content: generatedData.content || prev.content,
         seoTitle: generatedData.seoTitle || prev.seoTitle,
         seoDescription: generatedData.seoDescription || prev.seoDescription,
-        tags: generatedData.tags || prev.tags
+        tags: generatedData.tags || prev.tags,
+        coverImageAlt: generatedData.coverImageAlt || prev.coverImageAlt,
+        coverImage: stockImage?.url ? optimizeImageUrl(stockImage.url) : prev.coverImage,
+        author: prev.author.trim() ? prev.author : 'OnyxStack Labs Team'
       }));
 
-      alert("AI Content & SEO Schema successfully generated!");
+      if (!UNSPLASH_ACCESS_KEY) {
+        alert("AI Content & SEO Schema generated! Note: cover image was NOT auto-fetched because VITE_UNSPLASH_ACCESS_KEY is not set — please add it in Vercel env vars, or add a cover image URL manually.");
+      } else if (!stockImage?.url) {
+        alert("AI Content & SEO Schema generated! Couldn't find a matching stock photo — please add a cover image URL manually.");
+      } else {
+        alert(`AI Content, SEO Schema & cover image successfully generated!${stockImage.photographerName ? ` (Photo by ${stockImage.photographerName} on Unsplash)` : ''}`);
+      }
     } catch (error) {
       console.error("Error generating content via Gemini API:", error);
       const debugMessage =
