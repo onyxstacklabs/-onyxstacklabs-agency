@@ -10,7 +10,9 @@ import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebas
 // Initialize Gemini Client using standard Vite Environment Variable key
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
+// Current stable GA model (July 2026 release). Override via VITE_GEMINI_MODEL
+// env var if Google deprecates this without needing a code redeploy.
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-3.6-flash';
 
 export default function OnyxAdmin() {
   const [leads, setLeads] = useState([]);
@@ -276,7 +278,7 @@ export default function OnyxAdmin() {
     }
   };
 
-  // Gemini AI Content Generation Handler
+  // Gemini AI Content Generation Handler (Enterprise-grade, humanized, SEO/GEO/AEO optimized)
   const handleGenerateAiContent = async () => {
     if (!blogForm.title.trim()) {
       alert("Please specify an Article Headline Title first to guide the AI generation.");
@@ -290,16 +292,27 @@ export default function OnyxAdmin() {
 
     setIsAiGenerating(true);
     try {
-      const prompt = `Act as an expert technical content writer for OnyxStack Labs.
-Write a comprehensive, SEO-optimized technical blog article about: "${blogForm.title}".
+      const prompt = `Act as a senior technical content strategist and SEO/GEO specialist writing for OnyxStack Labs, a software development agency.
+
+Write a complete, enterprise-grade, humanized blog article about: "${blogForm.title}".
 Category: ${blogForm.category}.
 
-Requirements:
-- Structure content using clean Markdown (e.g., ### Headings, bullet points with -, code blocks starting with //).
-- Return standard JSON format with keys: "summary", "content", "seoTitle", "seoDescription", "tags".
-- "seoTitle": max 60 characters.
-- "seoDescription": max 160 characters.
-- "tags": comma-separated string of 3-5 relevant keywords.`;
+STRICT REQUIREMENTS:
+1. HUMANIZED TONE: Write like an experienced human engineer/writer. Avoid robotic AI clichés (e.g. "In today's fast-paced world", "Delve into", "Leverage", "It's important to note", "In conclusion"). Use natural, direct, professional-but-conversational English.
+2. LENGTH & DEPTH: 1200-1800 words. Cover the topic with real depth and practical insight, not generic filler.
+3. STRUCTURE: Clean Markdown — an engaging intro paragraph (no heading), then multiple ## and ### subheadings, short paragraphs (2-4 sentences), bullet points where useful, and a short FAQ section near the end (3-4 Q&A pairs) written for GEO/AEO (Generative Engine Optimization / Answer Engine Optimization) — each answer should directly and completely answer the question in 1-3 sentences so AI answer engines (Google AI Overviews, ChatGPT, Gemini, Perplexity) can quote it cleanly.
+4. SEO KEYWORDS: Naturally weave the primary keyword and 3-5 relevant long-tail keywords into headings and body text — no keyword stuffing.
+5. INTERNAL LINKING: Include exactly 2-3 contextual internal markdown links pointing to real OnyxStack Labs pages, chosen naturally based on relevance to the topic. ONLY use these real paths, never invent new ones: https://onyxstacklabs.com/tools, https://onyxstacklabs.com/pricing, https://onyxstacklabs.com/services, https://onyxstacklabs.com/careers, https://onyxstacklabs.com/projects, https://onyxstacklabs.com/blog.
+6. CREDIBILITY: Reference real, verifiable industry practices and concepts only — never fabricate statistics, case studies, or client names.
+
+Return ONLY a raw JSON object (no markdown code fences, no commentary) with these exact keys:
+{
+  "summary": "1-2 sentence engaging summary for blog listing cards",
+  "content": "Full article body in Markdown as described above",
+  "seoTitle": "SEO meta title, max 60 characters, includes primary keyword",
+  "seoDescription": "SEO meta description, max 160 characters, includes primary keyword, written to earn clicks",
+  "tags": "comma-separated string of 4-6 relevant keyword tags"
+}`;
 
       const response = await ai.models.generateContent({
         model: GEMINI_MODEL,
@@ -309,7 +322,9 @@ Requirements:
         }
       });
 
-      const generatedData = JSON.parse(response.text);
+      // Defensive cleanup in case the model wraps JSON in code fences despite responseMimeType
+      const rawText = (response.text || '').replace(/```json|```/g, '').trim();
+      const generatedData = JSON.parse(rawText);
 
       setBlogForm(prev => ({
         ...prev,
@@ -323,8 +338,6 @@ Requirements:
       alert("AI Content & SEO Schema successfully generated!");
     } catch (error) {
       console.error("Error generating content via Gemini API:", error);
-      // TEMPORARY DEBUG: surface the real error text directly in the popup
-      // so it's visible on mobile without needing DevTools console access.
       const debugMessage =
         error?.message ||
         (typeof error === 'string' ? error : JSON.stringify(error)) ||
