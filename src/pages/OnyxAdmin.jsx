@@ -14,6 +14,55 @@ const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 // env var if Google deprecates this without needing a code redeploy.
 const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-3.6-flash';
 
+// Correctly escapes control characters (raw newlines/tabs) that appear
+// INSIDE JSON string values, while leaving structural whitespace between
+// JSON tokens untouched (a naive blanket-replace breaks pretty-printed JSON).
+function sanitizeJsonControlChars(text) {
+  let result = '';
+  let inString = false;
+  let escapeNext = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (inString) {
+      if (escapeNext) {
+        result += ch;
+        escapeNext = false;
+        continue;
+      }
+      if (ch === '\\') {
+        result += ch;
+        escapeNext = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+        result += ch;
+        continue;
+      }
+      const code = ch.charCodeAt(0);
+      if (code <= 0x1F) {
+        if (ch === '\n') result += '\\n';
+        else if (ch === '\r') result += '\\r';
+        else if (ch === '\t') result += '\\t';
+        else if (ch === '\b') result += '\\b';
+        else if (ch === '\f') result += '\\f';
+        else result += ' ';
+        continue;
+      }
+      result += ch;
+    } else {
+      if (ch === '"') {
+        inString = true;
+      }
+      result += ch;
+    }
+  }
+
+  return result;
+}
+
 export default function OnyxAdmin() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -312,8 +361,7 @@ Write the "content" field as a single Markdown string. Use \\n for line breaks w
         contents: prompt,
         config: {
           responseMimeType: "application/json",
-          // Native structured output: Gemini enforces valid JSON server-side,
-          // eliminating malformed/unescaped-character parse failures at the source.
+          // Native structured output: Gemini enforces valid JSON server-side.
           responseSchema: {
             type: Type.OBJECT,
             properties: {
@@ -330,17 +378,10 @@ Write the "content" field as a single Markdown string. Use \\n for line breaks w
 
       const rawText = (response.text || '').replace(/```json|```/g, '').trim();
 
-      // Safety net: escape any stray raw control characters (unescaped
-      // newlines/tabs/carriage returns) that could still slip through
-      // and break JSON.parse, even with responseSchema enforced above.
-      const sanitizedText = rawText.replace(/[\u0000-\u001F]/g, (ch) => {
-        switch (ch) {
-          case '\n': return '\\n';
-          case '\r': return '\\r';
-          case '\t': return '\\t';
-          default: return '';
-        }
-      });
+      // Safety net: escape only the control characters that sit INSIDE
+      // JSON string values, leaving structural whitespace between tokens
+      // (e.g. pretty-printed indentation) completely untouched.
+      const sanitizedText = sanitizeJsonControlChars(rawText);
 
       const generatedData = JSON.parse(sanitizedText);
 
