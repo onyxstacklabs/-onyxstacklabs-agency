@@ -360,7 +360,10 @@ export default function OnyxAdmin() {
     }
   };
 
-  // Gemini AI Content Generation Handler (Enterprise-grade, humanized, SEO/GEO/AEO optimized)
+  // Gemini AI Content Generation Handler
+  // Enterprise-grade, humanized, SEO/GEO/AEO optimized — built on the
+  // project's Master Content Style Guide (simple English, E-E-A-T,
+  // featured-snippet formatting, internal + external authority linking).
   // Also auto-sources a copyright-free cover image via Unsplash and fills
   // author/alt-text so no field is left empty after generation.
   const handleGenerateAiContent = async () => {
@@ -376,20 +379,36 @@ export default function OnyxAdmin() {
 
     setIsAiGenerating(true);
     try {
-      const prompt = `Act as a senior technical content strategist and SEO/GEO specialist writing for OnyxStack Labs, a software development agency.
+      const prompt = `Act as an elite SEO content strategist and senior editor writing for OnyxStack Labs, a software development agency. Follow every rule below exactly.
 
-Write a complete, enterprise-grade, humanized blog article about: "${blogForm.title}".
-Category: ${blogForm.category}.
+TOPIC: "${blogForm.title}"
+CATEGORY: ${blogForm.category}
 
-STRICT REQUIREMENTS:
-1. HUMANIZED TONE: Write like an experienced human engineer/writer. Avoid robotic AI clichés (e.g. "In today's fast-paced world", "Delve into", "Leverage", "It's important to note", "In conclusion"). Use natural, direct, professional-but-conversational English.
-2. LENGTH & DEPTH: 1200-1800 words. Cover the topic with real depth and practical insight, not generic filler.
-3. STRUCTURE: Clean Markdown — an engaging intro paragraph (no heading), then multiple ## and ### subheadings, short paragraphs (2-4 sentences), bullet points where useful, and a short FAQ section near the end (3-4 Q&A pairs) written for GEO/AEO (Generative Engine Optimization / Answer Engine Optimization) — each answer should directly and completely answer the question in 1-3 sentences so AI answer engines (Google AI Overviews, ChatGPT, Gemini, Perplexity) can quote it cleanly.
-4. SEO KEYWORDS: Naturally weave the primary keyword and 3-5 relevant long-tail keywords into headings and body text — no keyword stuffing.
-5. INTERNAL LINKING: Include exactly 2-3 contextual internal markdown links pointing to real OnyxStack Labs pages, chosen naturally based on relevance to the topic. ONLY use these real paths, never invent new ones: https://onyxstacklabs.com/tools, https://onyxstacklabs.com/pricing, https://onyxstacklabs.com/services, https://onyxstacklabs.com/careers, https://onyxstacklabs.com/projects, https://onyxstacklabs.com/blog.
-6. CREDIBILITY: Reference real, verifiable industry practices and concepts only — never fabricate statistics, case studies, or client names.
-7. COVER IMAGE ALT TEXT: Write a descriptive, SEO-friendly alt text for the cover image, under 125 characters, describing the visual concept (not starting with "Image of").
-8. IMAGE SEARCH QUERY: Provide a short, visual, stock-photo-friendly search phrase (2-4 words, concrete nouns, e.g. "developer coding laptop" not abstract terms) that would return a relevant photo for this article's cover image.
+WRITING STYLE
+- Simple English (Grade 6-8 reading level), conversational and natural — never robotic or AI-sounding.
+- Active voice. Vary sentence length. Short paragraphs (2-4 lines).
+- No fluff, filler, clichés, or keyword stuffing. Never mention AI or that this was AI-written.
+
+CONTENT REQUIREMENTS
+- Address the real search intent behind this topic.
+- Structure with clear ## and ### headings (H2/H3 outline).
+- Include practical tips, comparisons, pros & cons, common mistakes, and actionable takeaways.
+- Add expert-level analysis and insight — not generic filler.
+- Reference only real, verifiable industry practices and concepts. Never fabricate statistics, case studies, or client names.
+- LENGTH: 1200-1800 words.
+
+SEO REQUIREMENTS
+- Feature the focus keyword naturally in the intro, at least one H2 heading, and the conclusion — without stuffing.
+- Weave 3-5 secondary/long-tail keywords naturally into headings and body text.
+- INTERNAL LINKS: include 2-3 contextual markdown links using ONLY these real OnyxStack Labs paths: https://onyxstacklabs.com/tools, https://onyxstacklabs.com/pricing, https://onyxstacklabs.com/services, https://onyxstacklabs.com/careers, https://onyxstacklabs.com/projects, https://onyxstacklabs.com/blog.
+- EXTERNAL AUTHORITY LINKS: include 1-2 markdown links to real, stable, well-known authoritative sources ONLY from this list, and only where genuinely relevant — never invent other URLs: https://react.dev, https://nextjs.org, https://developer.mozilla.org, https://web.dev, https://developers.google.com/search/docs.
+- FEATURED SNIPPET OPTIMIZATION: near the top of at least one relevant section, give a direct, concise (40-60 word) answer to the core question before expanding on it.
+- End with a "## Frequently Asked Questions" section: 3-4 Q&A pairs, each answer a direct 1-3 sentence response, written so AI answer engines (Google AI Overviews, ChatGPT, Gemini, Perplexity) can quote it cleanly.
+
+FIELD-SPECIFIC RULES
+- "tags": comma-separated string listing the FOCUS KEYWORD FIRST, followed by 4-6 secondary keywords.
+- "coverImageAlt": descriptive, SEO-friendly, under 125 characters, not starting with "Image of".
+- "imageSearchQuery": short 2-4 word stock-photo search phrase (concrete nouns, e.g. "developer coding laptop") for sourcing the cover image.
 
 Write the "content" field as a single Markdown string. Use \\n for line breaks within it — do not use raw line breaks.`;
 
@@ -404,9 +423,9 @@ Write the "content" field as a single Markdown string. Use \\n for line breaks w
             properties: {
               summary: { type: Type.STRING, description: "1-2 sentence engaging summary for blog listing cards" },
               content: { type: Type.STRING, description: "Full article body in Markdown" },
-              seoTitle: { type: Type.STRING, description: "SEO meta title, max 60 characters" },
-              seoDescription: { type: Type.STRING, description: "SEO meta description, max 160 characters" },
-              tags: { type: Type.STRING, description: "Comma-separated string of 4-6 relevant keyword tags" },
+              seoTitle: { type: Type.STRING, description: "SEO meta title, max 60 characters, includes the focus keyword" },
+              seoDescription: { type: Type.STRING, description: "SEO meta description, max 160 characters, includes the focus keyword" },
+              tags: { type: Type.STRING, description: "Comma-separated string, focus keyword first, then 4-6 secondary keywords" },
               coverImageAlt: { type: Type.STRING, description: "Descriptive SEO alt text for the cover image, under 125 characters" },
               imageSearchQuery: { type: Type.STRING, description: "Short 2-4 word stock-photo search phrase for the cover image" }
             },
