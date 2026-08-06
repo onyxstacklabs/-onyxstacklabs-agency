@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
+import { useSEO } from '../utils/useSEO';
 
 // ASSETS IMPORTS
 import heroImage from '../assets/images/about/about-hero-enterprise-workspace.webp';
@@ -13,51 +14,19 @@ import finalCtaImage from '../assets/images/about/about-final-cta.webp';
 
 export default function About({ currentPath, navigateToNode }) {
 
+  // Unique per-page SEO — title, description, and canonical for /about.
+  // (No page-specific JSON-LD needed here: the global Organization/
+  // ProfessionalService schema in index.html already covers company-wide
+  // details, so this avoids running a second, slightly different
+  // ProfessionalService schema block on the same page.)
+  useSEO({
+    title: 'About Us | OnyxStack Labs - Enterprise Software & AI Engineering',
+    description: 'Learn about OnyxStack Labs, a premier software engineering agency specializing in custom React development, MERN stack solutions, and enterprise AI integrations.',
+    path: '/about'
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // 1. DYNAMIC PAGE TITLE & META DESCRIPTION (SEO / GEO Optimization)
-    document.title = "About Us | OnyxStack Labs - Enterprise Software & AI Engineering";
-    
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.name = 'description';
-      document.head.appendChild(metaDescription);
-    }
-    metaDescription.content = "Learn about OnyxStack Labs, a premier software engineering agency specializing in custom React development, MERN stack solutions, and enterprise AI integrations.";
-
-    // 2. SCHEMA.ORG JSON-LD STRUCTURED DATA (AI Crawlers & Search Engines)
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "ProfessionalService",
-      "name": "OnyxStack Labs",
-      "description": "Agile software development agency specializing in custom web applications, MERN stack solutions, and AI development.",
-      "url": window.location.href,
-      "logo": window.location.origin + "/logo.png",
-      "knowsAbout": [
-        "Software Engineering",
-        "React Development",
-        "MERN Stack Solutions",
-        "Artificial Intelligence Integration",
-        "Cloud Applications",
-        "Tailwind CSS",
-        "Web Systems Architecture"
-      ],
-      "areaServed": "Global"
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'onyxstack-about-geo-schema';
-    script.innerHTML = JSON.stringify(schemaData);
-    document.head.appendChild(script);
-
-    // CLEANUP ON UNMOUNT
-    return () => {
-      const existingScript = document.getElementById('onyxstack-about-geo-schema');
-      if (existingScript) existingScript.remove();
-    };
   }, []);
 
   const coreValues = [
