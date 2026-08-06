@@ -7,10 +7,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { trackEvent } from '../utils/analytics';
 
 // Static Data Extraction outside render pipeline for maximum performance
+// NOTE: "Services" and "Portfolio" now point to their dedicated pages
+// (/services, /portfolio) instead of homepage anchor sections — see
+// Navbar.jsx for the full rationale (internal link equity + no more
+// duplicate-content overlap with the homepage's inline sections).
 const QUICK_LINKS = [
   { label: 'Home', target: '/' },
-  { label: 'Services', target: '#services' },
-  { label: 'Portfolio', target: '#portfolio' },
+  { label: 'Services', target: '/services' },
+  { label: 'Portfolio', target: '/portfolio' },
   { label: 'About', target: '/about' },
   { label: 'Contact', target: '/contact' }
 ];
