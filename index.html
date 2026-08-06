@@ -21,7 +21,7 @@
     <meta name="mobile-web-app-capable" content="no" />
     <meta name="apple-mobile-web-app-capable" content="no" />
 
-    <!-- Primary Metadata -->
+    <!-- Primary Metadata (default/fallback — overridden per-route by src/utils/useSEO.js) -->
     <title>OnyxStack Labs | Enterprise Software, AI Automation &amp; Cloud Development Agency</title>
     <meta
       name="description"
@@ -36,14 +36,22 @@
     <meta name="application-name" content="OnyxStack Labs" />
     <meta name="format-detection" content="telephone=yes" />
 
-    <!-- Canonical -->
-    <link rel="canonical" href="https://onyxstacklabs.com/" />
+    <!--
+      NOTE: The static <link rel="canonical"> tag that used to live here has
+      been intentionally removed. It was hardcoded to the homepage URL and
+      was being served as-is (before JS runs) for EVERY route, sending
+      Google a false "this page is a duplicate of the homepage" signal on
+      every non-homepage page. Per-route canonical tags are now set
+      dynamically via src/utils/useSEO.js on each page. Once full SSR /
+      pre-rendering is implemented (Phase 1b), the correct canonical will
+      also be present in the raw, pre-JS HTML for every route.
+    -->
 
     <!-- App Icons -->
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
 
-    <!-- Open Graph -->
+    <!-- Open Graph (default/fallback — overridden per-route by src/utils/useSEO.js) -->
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OnyxStack Labs" />
@@ -60,7 +68,7 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="OnyxStack Labs — Enterprise Software and AI Automation Agency" />
 
-    <!-- Twitter / X Card -->
+    <!-- Twitter / X Card (default/fallback — overridden per-route by src/utils/useSEO.js) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@OnyxStackLabs" />
     <meta name="twitter:creator" content="@OnyxStackLabs" />
@@ -72,7 +80,7 @@
     <meta name="twitter:image" content="https://onyxstacklabs.com/og-image.jpg" />
     <meta name="twitter:image:alt" content="OnyxStack Labs — Enterprise Software and AI Automation Agency" />
 
-    <!-- Structured Data: Organization -->
+    <!-- Structured Data: Organization (site-wide — correct on every page) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -116,7 +124,7 @@
       }
     </script>
 
-    <!-- Structured Data: WebSite -->
+    <!-- Structured Data: WebSite (site-wide — correct on every page) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -132,7 +140,7 @@
       }
     </script>
 
-    <!-- Structured Data: ProfessionalService -->
+    <!-- Structured Data: ProfessionalService (site-wide — correct on every page) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -224,75 +232,16 @@
       }
     </script>
 
-    <!-- Structured Data: BreadcrumbList (Home) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://onyxstacklabs.com/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Portfolio",
-            "item": "https://onyxstacklabs.com/portfolio"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Contact",
-            "item": "https://onyxstacklabs.com/contact"
-          }
-        ]
-      }
-    </script>
-
-    <!-- Structured Data: FAQPage (Pricing page FAQs) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Why does OnyxStack Labs operate on a custom scoping model?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Bespoke corporate technology products carry unique architecture rules. Fixed flat rates incentivize structural shortcuts. Custom scoping ensures you pay strictly for the targeted computation frameworks your operation requires."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What variables influence the final project investment?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Primary variables include total data ingestion points, third-party API dependencies, real-time sync frequencies, security tier specifications, and interactive dashboard scope."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Do we retain absolute legal ownership of the code?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Upon deployment contract execution, 100% of the repository intellectual property rights translate directly to your entity under secure ownership terms."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How does your system isolate internal data records?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "We insulate applications using strict parameter sanitization, role-based JWT validation nodes, and isolated backend server partitions to enforce absolute containment zones."
-            }
-          }
-        ]
-      }
-    </script>
+    <!--
+      NOTE: The global FAQPage and BreadcrumbList JSON-LD blocks that used
+      to live here have been removed. They were being sent as-is on EVERY
+      route (Pricing's FAQs and a fixed 3-item breadcrumb appearing on
+      Blog, Tools, Services, etc.), which is invalid/mismatched structured
+      data in Google's eyes. FAQPage schema is now injected per-page (only
+      on pages that actually have that FAQ content) via
+      src/utils/useSEO.js. BreadcrumbList will be reintroduced properly,
+      per-page, in a later step.
+    -->
 
     <!-- Deferred Third-Party Analytics: loaded after critical rendering path completes -->
     <script>
