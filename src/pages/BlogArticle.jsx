@@ -6,17 +6,113 @@ import { motion } from 'framer-motion';
 // LIVE DATA CORE IMPORTS
 import { db } from '../config/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useSEO } from '../utils/useSEO';
 
 const fxFadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
 };
 
+// Builds schema.org BlogPosting structured data from a live Firestore
+// article document, so Google/AI answer engines can properly attribute
+// and cite this article.
+function buildArticleSchema(article, url) {
+  if (!article) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.seoDescription || article.summary || '',
+    image: article.coverImage || 'https://onyxstacklabs.com/og-image.jpg',
+    author: {
+      '@type': 'Organization',
+      name: article.author || 'OnyxStack Labs Team'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'OnyxStack Labs',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://onyxstacklabs.com/favicon.png'
+      }
+    },
+    ...(article.createdAt?.seconds
+      ? { datePublished: new Date(article.createdAt.seconds * 1000).toISOString() }
+      : {}),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url
+    }
+  };
+}
+
+// Parses inline Markdown within a line of text — converts **bold** to
+// <strong> and [label](url) to real, crawlable <a href> links. This is
+// what makes the AI-generated blog content's internal/external links
+// (and any bold emphasis) actually functional and SEO-valuable on the
+// live page, instead of rendering as literal bracket/asterisk text.
+function parseInlineMarkdown(text) {
+  const regex = /(\*\*(.+?)\*\*)|(\[([^\]]+)\]\(([^)]+)\))/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[2] !== undefined) {
+      // **bold** match
+      parts.push(
+        <strong key={`b-${key++}`} className="text-white font-semibold">
+          {match[2]}
+        </strong>
+      );
+    } else if (match[4] !== undefined && match[5] !== undefined) {
+      // [label](url) match
+      const label = match[4];
+      const url = match[5];
+      const isInternal = url.startsWith('/') || url.includes('onyxstacklabs.com');
+      parts.push(
+        <a
+          key={`l-${key++}`}
+          href={url}
+          {...(!isInternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 decoration-cyan-500/40 transition-colors duration-200"
+        >
+          {label}
+        </a>
+      );
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
 export default function BlogArticle({ currentPath, navigateToNode }) {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Unique per-article SEO — title, description, canonical, and
+  // BlogPosting structured data, built from the live article once it
+  // loads. Guarded internally by useSEO (it no-ops until title/description
+  // are real strings), so this is safe to call before `article` is set.
+  useSEO({
+    title: article ? `${article.seoTitle || article.title} | OnyxStack Labs Blog` : undefined,
+    description: article?.seoDescription || article?.summary || undefined,
+    path: `/blog/${slug}`,
+    faqSchema: article ? buildArticleSchema(article, `https://onyxstacklabs.com/blog/${slug}`) : null
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -91,6 +187,10 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
   };
 
   // DYNAMIC ARCHITECTURAL CONTENT PARSER LAYER
+  // Now distinguishes ## (H2) from ### (H3) headings, and runs every
+  // heading/paragraph/bullet through parseInlineMarkdown() so **bold**
+  // and [label](url) links actually render as real, crawlable elements
+  // instead of literal Markdown syntax.
   const renderFormattedContent = (text) => {
     if (!text) return null;
     
@@ -101,12 +201,31 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       const trimmed = para.trim();
       if (!trimmed) return null;
 
-      // 1. Heading Detection
-      if (trimmed.startsWith('###') || (trimmed.endsWith(':') && trimmed.length < 60 && !trimmed.startsWith('http'))) {
-        const cleanHeading = trimmed.replace('###', '').trim();
+      // 1a. H3 Heading Detection (###)
+      if (trimmed.startsWith('### ') || trimmed === '###') {
+        const cleanHeading = trimmed.replace(/^###\s*/, '');
         return (
           <h3 key={index} className="text-lg sm:text-xl font-bold text-white tracking-tight pt-6 pb-2 font-sans border-l-2 border-cyan-500/40 pl-3 mt-4">
-            {cleanHeading}
+            {parseInlineMarkdown(cleanHeading)}
+          </h3>
+        );
+      }
+
+      // 1b. H2 Heading Detection (##)
+      if (trimmed.startsWith('## ') || trimmed === '##') {
+        const cleanHeading = trimmed.replace(/^##\s*/, '');
+        return (
+          <h2 key={index} className="text-xl sm:text-2xl font-bold text-white tracking-tight pt-8 pb-3 font-sans mt-6 border-b border-neutral-900 pb-3">
+            {parseInlineMarkdown(cleanHeading)}
+          </h2>
+        );
+      }
+
+      // 1c. Fallback heuristic heading (short line ending in ':')
+      if (trimmed.endsWith(':') && trimmed.length < 60 && !trimmed.startsWith('http')) {
+        return (
+          <h3 key={index} className="text-lg sm:text-xl font-bold text-white tracking-tight pt-6 pb-2 font-sans border-l-2 border-cyan-500/40 pl-3 mt-4">
+            {parseInlineMarkdown(trimmed)}
           </h3>
         );
       }
@@ -127,7 +246,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
           <ul key={index} className="list-none space-y-2 pl-4 my-2">
             <li className="text-neutral-300 text-sm sm:text-base font-sans tracking-wide flex items-start gap-2.5">
               <span className="text-cyan-400 font-mono mt-1 text-xs">▪</span>
-              <span>{cleanBullet}</span>
+              <span>{parseInlineMarkdown(cleanBullet)}</span>
             </li>
           </ul>
         );
@@ -136,7 +255,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
       // 4. Default Standard Paragraph Structure
       return (
         <p key={index} className="text-neutral-300 text-sm sm:text-base leading-relaxed tracking-wide font-sans mb-5">
-          {trimmed}
+          {parseInlineMarkdown(trimmed)}
         </p>
       );
     });
@@ -180,7 +299,7 @@ export default function BlogArticle({ currentPath, navigateToNode }) {
           {/* COVER IMAGE NODE */}
           {article.coverImage && (
             <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-neutral-900 bg-neutral-950 mb-8">
-              <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover opacity-80" />
+              <img src={article.coverImage} alt={article.coverImageAlt || article.title} className="w-full h-full object-cover opacity-80" />
             </div>
           )}
 
