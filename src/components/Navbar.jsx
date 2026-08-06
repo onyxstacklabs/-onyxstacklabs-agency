@@ -55,10 +55,16 @@ export default function Navbar({ currentPath, activeSection, navigateToNode, sit
     }
   };
 
+  // NOTE: "Services" and "Portfolio" now link to their dedicated, fully
+  // SEO-optimized pages (/services, /portfolio) instead of scrolling to
+  // the homepage's inline sections. This gives both pages real internal
+  // link equity from global navigation (previously they had none, which
+  // likely contributed to them being stuck un-indexed in GSC) and gives
+  // visitors a shareable, bookmarkable URL for each topic.
   const navLinks = [
     { label: "Home", target: "/", type: "absolute", sectionKey: null },
-    { label: "Services", target: "#services", type: "anchor", sectionKey: "services" },
-    { label: "Portfolio", target: "#portfolio", type: "anchor", sectionKey: "portfolio" },
+    { label: "Services", target: "/services", type: "absolute", sectionKey: null },
+    { label: "Portfolio", target: "/portfolio", type: "absolute", sectionKey: null },
     { label: "Tools", target: "/tools", type: "absolute", sectionKey: null },
     { label: "About", target: "/about", type: "absolute", sectionKey: null },
     { label: "Contact", target: "/contact", type: "absolute", sectionKey: null }
