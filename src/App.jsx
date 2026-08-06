@@ -41,32 +41,19 @@ const AIWebsiteAuditPage = lazy(() => import('./pages/AIWebsiteAudit').then(modu
 
 const InvisibleFallback = () => <div className="min-h-screen bg-[#050505]" />;
 
-const CANONICAL_DOMAIN = 'https://onyxstacklabs.com';
-
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
 
-  useEffect(() => {
-    document.title = "OnyxStack Labs | Enterprise Software & AI Automation Agency";
-  }, []);
-
+  // NOTE: Per-page document.title, meta description, canonical tag, and
+  // FAQ schema are now handled individually by each page component via
+  // src/utils/useSEO.js — this keeps every page's title/description/
+  // schema accurate and unique instead of one global value shared (and
+  // stuck) across the whole site. Pages not yet migrated to useSEO fall
+  // back to the static defaults in index.html until they're updated.
   useEffect(() => {
     trackPageView(currentPath, document.title);
-  }, [currentPath]);
-
-  useEffect(() => {
-    let canonicalTag = document.querySelector('link[rel="canonical"]');
-    if (!canonicalTag) {
-      canonicalTag = document.createElement('link');
-      canonicalTag.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalTag);
-    }
-    const canonicalUrl = currentPath === '/'
-      ? `${CANONICAL_DOMAIN}/`
-      : `${CANONICAL_DOMAIN}${currentPath}`;
-    canonicalTag.setAttribute('href', canonicalUrl);
   }, [currentPath]);
 
   const navigateToNode = (path) => {
