@@ -3,6 +3,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 // LIVE DATA CORE IMPORTS
 import { transmitLeadToFirebase } from '../config/firebase';
 import { siteConfig } from '../config/siteConfig';
+import { useSEO } from '../utils/useSEO';
 
 // IMMEDIATE CRITICAL ABOVE-THE-FOLD IMPORTS
 import Hero from '../components/Hero';
@@ -29,6 +30,14 @@ const SectionFallback = () => (
 
 export default function Home({ currentPath, navigateToNode }) {
   const [activeSection, setActiveSection] = useState('');
+
+  // Unique per-page SEO for the homepage — canonical path "/".
+  // No FAQ schema here since Home.jsx doesn't render an FAQ section itself.
+  useSEO({
+    title: 'OnyxStack Labs | Custom Software, AI Automation & Cloud Development Agency',
+    description: 'OnyxStack Labs builds custom software, web and Android apps, AI automation, ERP systems, and scalable cloud infrastructure for startups and enterprises.',
+    path: '/'
+  });
 
   // Monitor scroll spies safely across viewports
   useEffect(() => {
