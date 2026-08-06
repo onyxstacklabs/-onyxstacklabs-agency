@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { siteConfig } from '../config/siteConfig';
 import { db } from '../config/firebase'; 
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { useSEO } from '../utils/useSEO';
 
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
@@ -34,6 +35,15 @@ export default function Blog({ currentPath, navigateToNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribedStatus, setSubscribedStatus] = useState(false);
+
+  // Unique per-page SEO for the Blog hub — canonical path "/blog".
+  // No FAQ schema here since this page doesn't render an FAQ section
+  // itself; individual blog posts carry their own schema separately.
+  useSEO({
+    title: 'Blog | Technical Engineering Insights - OnyxStack Labs',
+    description: 'Technical engineering insights on AI automation, web development, and cloud architecture — written by OnyxStack Labs\' senior consultants.',
+    path: '/blog'
+  });
 
   // Helper function to cleanly extract text if document content contains raw HTML tags
   const cleanExtractText = (rawStr) => {
