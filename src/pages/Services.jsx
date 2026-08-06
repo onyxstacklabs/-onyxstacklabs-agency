@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
+import { useSEO, buildFaqSchema } from '../utils/useSEO';
 
 // PREMIUM IMAGE ASSETS — EXACT PATHS, DO NOT RENAME
 import heroBanner from "../assets/images/hero-banner.webp";
@@ -237,6 +238,15 @@ export default function Services({ currentPath, navigateToNode }) {
     { q: "What types of AI solutions can you integrate into our business platforms?", a: "We build tailored AI integrations, semantic search tools, and semantic reporting modules using advanced technology like Gemini AI. These are built to process internal data streams, automate service requests, and optimize resource logistics." },
     { q: "What kind of support is available after our product launch?", a: "We offer comprehensive maintenance plans that cover regular frontend performance optimization, software security auditing, dependency upgrades, and immediate feature scaling to ensure long-term value." }
   ];
+
+  // Unique per-page SEO — title, description, canonical, and FAQ schema
+  // built from this page's own real faqs array above.
+  useSEO({
+    title: 'Custom Software Development Services | OnyxStack Labs',
+    description: 'Custom software, modern web apps, AI integrations, cloud deployment, cybersecurity, and mobile app development — engineered end-to-end by OnyxStack Labs.',
+    path: '/services',
+    faqSchema: buildFaqSchema(faqs)
+  });
 
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-100 font-sans antialiased selection:bg-[#06B6D4] selection:text-black scroll-smooth relative overflow-hidden">
