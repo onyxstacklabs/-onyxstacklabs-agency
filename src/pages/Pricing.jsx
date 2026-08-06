@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSEO, buildFaqSchema } from '../utils/useSEO';
 
 export default function Pricing({ currentPath, navigateToNode }) {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -105,6 +106,15 @@ export default function Pricing({ currentPath, navigateToNode }) {
       document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
     }, 150);
   };
+
+  // Unique per-page SEO — title, description, canonical, and FAQ schema
+  // built from this page's own real faqCatalog above.
+  useSEO({
+    title: 'Pricing & Engagement Models | OnyxStack Labs',
+    description: 'Transparent custom software pricing — MVP Starter, Core Business, and Enterprise Architecture tiers. Get a tailored scoping blueprint for your project.',
+    path: '/pricing',
+    faqSchema: buildFaqSchema(faqCatalog)
+  });
 
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-100 font-sans antialiased selection:bg-[#06B6D4] selection:text-black relative overflow-hidden">
