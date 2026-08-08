@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSEO } from '../utils/useSEO';
 
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
@@ -20,6 +21,13 @@ const fxTabPanelVariant = {
 
 export default function Projects({ currentPath, navigateToNode }) {
   const [activeCase, setActiveCase] = useState(0);
+
+  // Unique per-page SEO — title, description, and canonical for /projects.
+  useSEO({
+    title: 'Case Studies | Enterprise Software Projects - OnyxStack Labs',
+    description: 'Detailed technical case studies from OnyxStack Labs — EdTech ERPs, B2B commerce platforms, security access systems, and real-time analytics, with measurable engineering outcomes.',
+    path: '/projects'
+  });
 
   // Synchronize layout scroll threshold on initialization phase
   useEffect(() => {
