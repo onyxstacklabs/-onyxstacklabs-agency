@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
 import { transmitLeadToFirebase } from '../config/firebase';
+import { useSEO, buildFaqSchema } from '../utils/useSEO';
 
 export default function Contact({ currentPath, navigateToNode }) {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -153,6 +154,15 @@ export default function Contact({ currentPath, navigateToNode }) {
       a: "You get a shared project dashboard, a private developer channel for day-to-day questions, and a standing weekly check-in — so status is always visible, never something you have to chase."
     }
   ];
+
+  // Unique per-page SEO — title, description, canonical, and FAQ schema
+  // built from this page's own real contactFaqs above.
+  useSEO({
+    title: 'Contact Us | OnyxStack Labs - Talk to Our Engineering Team',
+    description: 'Tell us about your project. A senior architect at OnyxStack Labs will review your requirements and schedule a scoping call — no sales rep, just engineers.',
+    path: '/contact',
+    faqSchema: buildFaqSchema(contactFaqs)
+  });
 
   return (
     <div className="min-h-screen bg-[#05070B] text-slate-100 antialiased selection:bg-[#06B6D4]/30 selection:text-white relative overflow-hidden">
