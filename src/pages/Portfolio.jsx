@@ -2,13 +2,17 @@ import React, { useEffect } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
-
-// MODULAR DETACHED COMPONENT ARCHITECTURE LAYER
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { useSEO } from '../utils/useSEO';
 
 export default function Portfolio({ currentPath, navigateToNode }) {
   
+  // Unique per-page SEO — title, description, and canonical for /portfolio.
+  useSEO({
+    title: 'Portfolio | Custom Software Case Studies - OnyxStack Labs',
+    description: 'Explore OnyxStack Labs\' engineered deployments — EdTech ERPs, B2B commerce platforms, security access systems, and real-time analytics dashboards.',
+    path: '/portfolio'
+  });
+
   // Align view frame state on render lifecycle
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -98,14 +102,6 @@ export default function Portfolio({ currentPath, navigateToNode }) {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[750px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.06),transparent_65%)] pointer-events-none z-0" />
       <div className="absolute top-[1500px] right-0 w-[550px] h-[550px] bg-[#2563EB]/[0.01] blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[400px] left-0 w-[650px] h-[650px] bg-[#06B6D4]/[0.015] blur-[220px] pointer-events-none" />
-
-      {/* CORE NAVIGATION COMPONENT FRAME */}
-      <Navbar 
-        currentPath={currentPath} 
-        activeSection="" 
-        navigateToNode={navigateToNode} 
-        siteConfig={siteConfig} 
-      />
 
       {/* COMPONENT BODY MATRIX CONTAINER */}
       <div className="relative z-10 distribution-portfolio-scope">
@@ -284,9 +280,6 @@ export default function Portfolio({ currentPath, navigateToNode }) {
         </section>
 
       </div>
-
-      {/* CORE FRAME FOOTER COMPLEMENT */}
-      <Footer siteConfig={siteConfig} />
 
     </div>
   );
