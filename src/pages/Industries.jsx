@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSEO } from '../utils/useSEO';
 
 // SELECTION CORNER FRAMER VARIANT COEFFICIENTS
 const fxFadeUp = {
@@ -20,6 +21,13 @@ const fxTabPanelVariant = {
 
 export default function Industries({ currentPath, navigateToNode }) {
   const [selectedIndustry, setSelectedIndustry] = useState(0);
+
+  // Unique per-page SEO — title, description, and canonical for /industries.
+  useSEO({
+    title: 'Industries We Serve | Enterprise Software by Vertical - OnyxStack Labs',
+    description: 'Custom software solutions built for Education, Healthcare, Retail, Manufacturing, Finance, Logistics, and more — engineered by OnyxStack Labs for sector-specific compliance and scale.',
+    path: '/industries'
+  });
 
   // Reset scroll position on mounting phase
   useEffect(() => {
