@@ -1,9 +1,25 @@
-import { db } from './config/firebase.js'; // Adjust paths based on your runtime environment structure
+import { db } from './config/firebase.js';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 /**
+ * Utility function to sanitize XML special characters in URLs
+ */
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+}
+
+/**
  * OnyxStack Labs - Dynamic Enterprise XML Sitemap Generator Pipeline
- * Optimized for Traditional SEO & Generative AI Search Engine Crawlers (GEO / LLMO)
  */
 export async function generateSitemap() {
   const BASE_URL = 'https://onyxstacklabs.com';
@@ -11,7 +27,7 @@ export async function generateSitemap() {
 
   // 1. Immutable Premium Enterprise Static Routes Definition Matrix
   const staticRoutes = [
-    { path: '/', changefreq: 'weekly', priority: '1.0' },
+    { path: '', changefreq: 'weekly', priority: '1.0' },
     { path: '/about', changefreq: 'monthly', priority: '0.9' },
     { path: '/services', changefreq: 'monthly', priority: '0.9' },
     { path: '/portfolio', changefreq: 'monthly', priority: '0.8' },
@@ -29,19 +45,18 @@ export async function generateSitemap() {
 
   // Process static inventory nodes into XML wrappers
   staticRoutes.forEach(route => {
-    xmlUrlNodes += `
-  <url>
-    <loc>${BASE_URL}${route.path}</loc>
+    const loc = escapeXml(`${BASE_URL}${route.path}`);
+    xmlUrlNodes += `  <url>
+    <loc>${loc}</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
-  </url>`;
+  </url>\n`;
   });
 
-  // 2. Fetch Context-Aware Dynamic Deep Intelligence Vectors from Google Cloud Firestore
+  // 2. Fetch Dynamic Blogs from Google Cloud Firestore
   try {
     const blogCollectionRef = collection(db, 'blogs');
-    // Strict enforcement parameter: Extract entries mapped strictly to status structural boundary node "LIVE"
     const liveBlogsQuery = query(blogCollectionRef, where('status', '==', 'LIVE'));
     const querySnapshot = await getDocs(liveBlogsQuery);
 
@@ -49,7 +64,6 @@ export async function generateSitemap() {
       const blogData = doc.data();
       const slug = blogData.slug;
       
-      // Secondary fallback parameter verification layer: timestamp parsing strategy
       let lastModDate = currentDate;
       const rawDate = blogData.updatedAt || blogData.createdAt;
       
@@ -65,26 +79,27 @@ export async function generateSitemap() {
       }
 
       if (slug) {
-        xmlUrlNodes += `
-  <url>
-    <loc>${BASE_URL}/blog/${slug}</loc>
+        const cleanSlug = escapeXml(slug.trim().replace(/^\/|\/$/g, ''));
+        const loc = `${BASE_URL}/blog/${cleanSlug}`;
+        
+        xmlUrlNodes += `  <url>
+    <loc>${loc}</loc>
     <lastmod>${lastModDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`;
+  </url>\n`;
       }
     });
   } catch (firestoreError) {
     console.error("Fatal Dynamic Pipeline Transmission Drop: Unable to compile Firestore data sync layers.", firestoreError);
-    // Silent failover implementation matrix: allow standard payload export even if content cluster fails
   }
 
-  // 3. Assemble complete standards-compliant dynamic XML structural map string (Extended for AI/GEO schema validation)
+  // 3. Complete XML map string
   const completeSitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">${xmlUrlNodes}
-</urlset>`;
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+${xmlUrlNodes}</urlset>`.trim();
 
   return completeSitemapXml;
 }
