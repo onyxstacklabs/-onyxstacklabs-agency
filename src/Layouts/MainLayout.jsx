@@ -6,7 +6,7 @@ import { siteConfig } from '../config/siteConfig';
 import { trackEvent } from '../utils/analytics';
 
 function WhatsAppButton() {
-  const phoneNumber = '923445800630';
+  const phoneNumber = siteConfig?.whatsappNumber || '923445800630';
   const prefilledMessage = encodeURIComponent(
     "Hi OnyxStack Labs, I'd like to discuss a project."
   );
@@ -39,9 +39,17 @@ function WhatsAppButton() {
 export default function MainLayout({ currentPath, activeSection, navigateToNode }) {
   return (
     <div className="relative min-h-screen bg-[#050505] text-white flex flex-col overflow-x-hidden antialiased selection:bg-[#06B6D4]/30 selection:text-white">
+      {/* Skip to main content for accessibility */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#06B6D4] focus:text-black focus:font-semibold focus:rounded-md"
+      >
+        Skip to main content
+      </a>
+
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" aria-hidden="true" />
 
-      {/* Global Navbar rendered ONLY here */}
+      {/* Global Navbar */}
       <Navbar
         currentPath={currentPath}
         activeSection={activeSection}
@@ -49,11 +57,17 @@ export default function MainLayout({ currentPath, activeSection, navigateToNode 
         siteConfig={siteConfig}
       />
 
-      <main className="flex-grow w-full relative z-10 focus:outline-none">
-        <Outlet />
+      {/* Main Content Area with Accessibility Anchor */}
+      <main id="main-content" tabIndex={-1} className="flex-grow w-full relative z-10 focus:outline-none">
+        <Outlet context={{ currentPath, activeSection, navigateToNode }} />
       </main>
 
-      <Footer siteConfig={siteConfig} />
+      {/* Global Footer with full navigation state */}
+      <Footer 
+        siteConfig={siteConfig} 
+        currentPath={currentPath} 
+        navigateToNode={navigateToNode} 
+      />
 
       <WhatsAppButton />
     </div>
