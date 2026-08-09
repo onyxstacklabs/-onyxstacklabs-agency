@@ -1,30 +1,33 @@
 // Footer.jsx
 import React, { memo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-// ANALYTICS: tracks outbound engagement (email, phone, WhatsApp, social,
-// featured badges) so real visitor intent shows up in GA4, not just page views.
+// ANALYTICS: tracks outbound engagement (email, phone, WhatsApp, social, featured badges)
 import { trackEvent } from '../utils/analytics';
 
-// Static Data Extraction outside render pipeline for maximum performance
-// NOTE: "Services" and "Portfolio" now point to their dedicated pages
-// (/services, /portfolio) instead of homepage anchor sections — see
-// Navbar.jsx for the full rationale (internal link equity + no more
-// duplicate-content overlap with the homepage's inline sections).
+// STATIC LINK MATRIX FOR OPTIMAL INTERNAL LINK EQUITY (GSC INDEXING ENGINE)
 const QUICK_LINKS = [
   { label: 'Home', target: '/' },
-  { label: 'Services', target: '/services' },
-  { label: 'Portfolio', target: '/portfolio' },
-  { label: 'About', target: '/about' },
-  { label: 'Contact', target: '/contact' }
+  { label: 'Services Hub', target: '/services' },
+  { label: 'Portfolio Showcase', target: '/portfolio' },
+  { label: 'About Agency', target: '/about' },
+  { label: 'Contact Us', target: '/contact' }
+];
+
+const SERVICES_LINKS = [
+  { label: 'Web & App Development', target: '/services#web-dev' },
+  { label: 'AI Automation & Bots', target: '/services#ai-automation' },
+  { label: 'Cloud Infrastructure & DevOps', target: '/services#devops' },
+  { label: 'UI/UX & Product Design', target: '/services#ui-ux' },
+  { label: 'Custom Enterprise Software', target: '/services#enterprise' }
 ];
 
 const RESOURCE_LINKS = [
-  { label: 'Projects', target: '/projects' },
-  { label: 'Industries', target: '/industries' },
-  { label: 'Pricing', target: '/pricing' },
-  { label: 'Careers', target: '/careers' },
-  { label: 'Insights & Blog', target: '/blog' }
+  { label: 'Client Projects', target: '/projects' },
+  { label: 'Industry Solutions', target: '/industries' },
+  { label: 'Transparent Pricing', target: '/pricing' },
+  { label: 'Career Opportunities', target: '/careers' },
+  { label: 'Insights & Tech Blog', target: '/blog' }
 ];
 
 const LEGAL_LINKS = [
@@ -104,7 +107,7 @@ const SOCIAL_NODES = [
 const FEATURED_BADGES = [
   {
     name: 'Product Hunt',
-    href: 'https://www.producthunt.com/products/onyxstack-labs?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-onyxstack-labs',
+    href: 'https://www.producthunt.com/products/onyxstack-labs',
     src: 'https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1198402&theme=light',
     alt: 'OnyxStack Labs - Building Smarter Solutions with AI & Custom Software | Product Hunt',
     width: 250,
@@ -122,33 +125,6 @@ const FEATURED_BADGES = [
 ];
 
 function Footer({ siteConfig }) {
-  const navigate = useNavigate();
-
-  // Handles zero-point viewport scrolling for Home and in-page anchor navigation
-  const handleFooterLinkClick = (e, target) => {
-    if (target.startsWith('#') || target === '/') {
-      e.preventDefault();
-      
-      const elementId = target === '/' ? 'home' : target.substring(1);
-      const currentPath = window.location.pathname;
-
-      if (currentPath === '/') {
-        const element = document.getElementById(elementId) || document.documentElement;
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      } else {
-        navigate('/');
-        setTimeout(() => {
-          const element = document.getElementById(elementId) || document.documentElement;
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 250);
-      }
-    }
-  };
-
   const email = siteConfig?.contactEmail || 'info@onyxstacklabs.com';
   const website = siteConfig?.website || 'www.onyxstacklabs.com';
   const phone = siteConfig?.contactPhone || '+92 344 5800630';
@@ -158,7 +134,7 @@ function Footer({ siteConfig }) {
 
   return (
     <footer
-      className="relative border-t border-[#161B26] bg-[#04060A] pt-24 pb-12 px-6 md:px-12 z-10 overflow-hidden text-slate-200 antialiased font-sans select-none"
+      className="relative border-t border-[#161B26] bg-[#04060A] pt-20 pb-12 px-6 md:px-12 z-10 overflow-hidden text-slate-200 antialiased font-sans select-none"
       aria-label="Site Footer"
     >
       {/* High-fidelity architectural blueprint background grid lines */}
@@ -185,11 +161,11 @@ function Footer({ siteConfig }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8 pb-16 items-stretch">
 
           {/* BRAND TOWER CARD */}
-          <div className={`${cardStyle} sm:col-span-2 lg:col-span-3`}>
+          <div className={`${cardStyle} sm:col-span-2 lg:col-span-4`}>
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#06B6D4] shadow-[0_0_14px_#06B6D4]" aria-hidden="true" />
-                <span className="text-xs font-black tracking-[0.2em] text-white uppercase font-mono">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#06B6D4] shadow-[0_0_14px_#06B6D4]" aria-hidden="true" />
+                <span className="text-sm font-black tracking-[0.2em] text-white uppercase font-mono">
                   {siteConfig?.agencyName || 'OnyxStack Labs'}
                 </span>
               </div>
@@ -202,20 +178,58 @@ function Footer({ siteConfig }) {
                 </p>
               </div>
             </div>
+
+            {/* Quick Contact Micro-Block */}
+            <div className="pt-6 border-t border-[#1E2433] space-y-2">
+              <a
+                href={`mailto:${email}`}
+                onClick={() => trackEvent('email_click', { link_location: 'footer', email_address: email })}
+                className="text-[12px] text-slate-300 hover:text-[#06B6D4] font-mono block truncate transition-colors"
+              >
+                {email}
+              </a>
+              <a
+                href={`tel:${phone.replace(/\s+/g, '')}`}
+                onClick={() => trackEvent('phone_click', { link_location: 'footer' })}
+                className="text-[12px] text-slate-300 hover:text-[#06B6D4] font-mono block transition-colors"
+              >
+                {phone}
+              </a>
+            </div>
           </div>
 
-          {/* QUICK LINKS LINK MATRIX */}
-          <nav className={`${cardStyle} lg:col-span-2`} aria-label="Quick Links">
+          {/* NAVIGATION LINKS */}
+          <nav className={`${cardStyle} lg:col-span-2`} aria-label="Navigation">
             <div className="space-y-5">
               <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-mono font-bold border-b border-[#1E2433] pb-2">
-                Quick Links
+                Navigation
               </h3>
               <ul className="space-y-3.5 text-[13px] text-slate-400">
                 {QUICK_LINKS.map((link, idx) => (
                   <li key={idx}>
                     <Link
                       to={link.target}
-                      onClick={(e) => handleFooterLinkClick(e, link.target)}
+                      className="inline-block hover:text-white hover:translate-x-1.5 transition-all duration-300 ease-out font-medium hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </nav>
+
+          {/* SERVICES LINK MATRIX */}
+          <nav className={`${cardStyle} lg:col-span-2`} aria-label="Services">
+            <div className="space-y-5">
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-mono font-bold border-b border-[#1E2433] pb-2">
+                Services
+              </h3>
+              <ul className="space-y-3.5 text-[13px] text-slate-400">
+                {SERVICES_LINKS.map((link, idx) => (
+                  <li key={idx}>
+                    <Link
+                      to={link.target}
                       className="inline-block hover:text-white hover:translate-x-1.5 transition-all duration-300 ease-out font-medium hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]"
                     >
                       {link.label}
@@ -268,48 +282,6 @@ function Footer({ siteConfig }) {
             </div>
           </nav>
 
-          {/* DATA CONNECT DIRECTORIES */}
-          <section className={`${cardStyle} lg:col-span-3`} aria-label="Contact Information">
-            <div className="space-y-5">
-              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-mono font-bold border-b border-[#1E2433] pb-2">
-                Contact
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">Email Portal</span>
-                  <a
-                    href={`mailto:${email}`}
-                    onClick={() => trackEvent('email_click', { link_location: 'footer', email_address: email })}
-                    className="text-[13px] text-white/90 hover:text-[#06B6D4] break-all font-semibold tracking-wide transition-colors duration-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
-                  >
-                    {email}
-                  </a>
-                </div>
-                
-                <div>
-                  <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">Secure Line</span>
-                  <a
-                    href={`tel:${phone.replace(/\s+/g, '')}`}
-                    onClick={() => trackEvent('phone_click', { link_location: 'footer' })}
-                    className="text-[13px] text-white/90 hover:text-[#06B6D4] font-semibold tracking-wide transition-colors duration-200"
-                  >
-                    {phone}
-                  </a>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 pt-3.5 border-t border-[#1E2433]">
-                  <div>
-                    <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">Domain</span>
-                    <span className="text-[11px] text-slate-300 font-mono font-medium truncate block">{website}</span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] font-mono uppercase tracking-widest text-[#06B6D4] block mb-0.5 font-bold">HQ</span>
-                    <span className="text-[11px] text-slate-300 font-medium block truncate">{siteConfig?.headquarters || 'Pakistan'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* FEATURED ON / THIRD-PARTY RECOGNITION STRIP */}
@@ -341,7 +313,7 @@ function Footer({ siteConfig }) {
           </div>
         </div>
 
-        {/* BOTTOM UTILITY MATRIX ENGINE WITH BEAUTIFUL SOCIAL ICONS */}
+        {/* BOTTOM UTILITY MATRIX ENGINE WITH SOCIAL ICONS */}
         <div className="border-t border-[#161B26] mt-6 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <nav className="flex flex-wrap items-center justify-center gap-3 sm:gap-3.5" aria-label="Social Media Nodes">
             {SOCIAL_NODES.map((social) => (
@@ -368,5 +340,4 @@ function Footer({ siteConfig }) {
   );
 }
 
-// React.memo wrapper to prevent unnecessary parent re-renders
 export default memo(Footer);
