@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 // LIVE DATA CORE & FIREBASE CONFIG IMPORTS
 import { db } from '../config/firebase'; // Aapka existing firebase setup
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useSEO, buildFaqSchema } from '../utils/useSEO';
 
 export default function Careers({ currentPath, navigateToNode }) {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -15,6 +16,23 @@ export default function Careers({ currentPath, navigateToNode }) {
   // Form States Matrix - Synchronized precisely with OnyxAdmin Hub expectations
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', portfolio: '', experience: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Section 5 Data: Recruitment FAQ Catalog (defined early so useSEO below
+  // can build its schema from the same array rendered further down)
+  const careerFaqs = [
+    { q: "Can I apply if my current geographical timezone sits outside of standard operational boundaries?", a: "Yes. OnyxStack Labs operates with an asynchronous workflow matrix. As long as you maintain core alignment intersections with your technical pod for code reviews and document updates, you control your clock variables completely." },
+    { q: "What programming style conventions does your technical organization look for in coding tests?", a: "We highly prioritize declarative state formatting, defensive boundary conditions against edge exceptions, isolated atomic components, and readable commit annotations. We favor long-term maintainability over over-engineered micro-optimizations." },
+    { q: "How fast do applications advance through the enterprise screening pipeline?", a: "Our typical review-to-offer trajectory completes in under 14 business days. We understand top technical talent moves rapidly through market options, so we keep evaluation channels direct and responsive." }
+  ];
+
+  // Unique per-page SEO — title, description, canonical, and FAQ schema
+  // built from this page's own real careerFaqs above.
+  useSEO({
+    title: 'Careers | Join Our Engineering Team - OnyxStack Labs',
+    description: 'Open remote engineering and design roles at OnyxStack Labs — build resilient, custom-built software platforms with a fully async, global team.',
+    path: '/careers',
+    faqSchema: buildFaqSchema(careerFaqs)
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -138,12 +156,6 @@ export default function Careers({ currentPath, navigateToNode }) {
     { category: "Universal Health Infrastructure", benefit: "Global medical and dental insurance subsidies mapped safely to support your local region's private care networks." },
     { category: "Asynchronous PTO Ecosystem", benefit: "28 days of baseline annual paid time off alongside regional calendar breaks, backed by a strict 'no notification check' code." },
     { category: "Learning Resource Endowments", benefit: "$1,500 annual personal development budget for software licenses, advanced certifications, and technical text access." }
-  ];
-
-  const careerFaqs = [
-    { q: "Can I apply if my current geographical timezone sits outside of standard operational boundaries?", a: "Yes. OnyxStack Labs operates with an asynchronous workflow matrix. As long as you maintain core alignment intersections with your technical pod for code reviews and document updates, you control your clock variables completely." },
-    { q: "What programming style conventions does your technical organization look for in coding tests?", a: "We highly prioritize declarative state formatting, defensive boundary conditions against edge exceptions, isolated atomic components, and readable commit annotations. We favor long-term maintainability over over-engineered micro-optimizations." },
-    { q: "How fast do applications advance through the enterprise screening pipeline?", a: "Our typical review-to-offer trajectory completes in under 14 business days. We understand top technical talent moves rapidly through market options, so we keep evaluation channels direct and responsive." }
   ];
 
   const filteredJobs = selectedDept === "All" ? openPositions : openPositions.filter(j => j.dept === selectedDept);
