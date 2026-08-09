@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useEffect, Suspense, lazy } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 
 // LAYOUT SYSTEM IMPORT 
 import MainLayout from './Layouts/MainLayout.jsx';
@@ -46,14 +46,23 @@ export default function App() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // NOTE: Per-page document.title, meta description, canonical tag, and
-  // FAQ schema are now handled individually by each page component via
-  // src/utils/useSEO.js — this keeps every page's title/description/
-  // schema accurate and unique instead of one global value shared (and
-  // stuck) across the whole site. Pages not yet migrated to useSEO fall
-  // back to the static defaults in index.html until they're updated.
+  // TRAILING SLASH NORMALIZATION (SEO & Redirect Fix)
+  // Strips trailing slashes from routes (e.g., /pricing/ -> /pricing) to prevent GSC redirect loops
+  if (currentPath.length > 1 && currentPath.endsWith('/')) {
+    const cleanPath = currentPath.slice(0, -1);
+    return <Navigate to={{ ...location, pathname: cleanPath }} replace />;
+  }
+
   useEffect(() => {
-    trackPageView(currentPath, document.title);
+    // Scroll reset on route change
+    window.scrollTo(0, 0);
+
+    // Defer analytics tracking slightly so lazy components & useSEO finish updating document.title
+    const analyticsTimer = setTimeout(() => {
+      trackPageView(currentPath, document.title);
+    }, 50);
+
+    return () => clearTimeout(analyticsTimer);
   }, [currentPath]);
 
   const navigateToNode = (path) => {
