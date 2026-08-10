@@ -242,6 +242,37 @@ export default function Pricing({ currentPath, navigateToNode }) {
           </div>
         </section>
 
+        {/* RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-neutral-900">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-10 text-center">Related resources</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <a
+              href="/services"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/services'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/50 hover:border-[#06B6D4]/40 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#06B6D4] transition-colors duration-300">Explore Our Services</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">See exactly what's included in each engagement tier, in technical detail.</p>
+            </a>
+            <a
+              href="/tools/roi-calculator"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/tools/roi-calculator'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/50 hover:border-[#06B6D4]/40 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#06B6D4] transition-colors duration-300">Calculate Your ROI</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Free tool to estimate the return on investing in custom software.</p>
+            </a>
+            <a
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/contact'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/50 hover:border-[#06B6D4]/40 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#06B6D4] transition-colors duration-300">Talk to an Architect</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Get a scoping blueprint tailored specifically to your project.</p>
+            </a>
+          </div>
+        </section>
+
         {/* FINAL CTA */}
         <section className="max-w-7xl mx-auto px-4 md:px-12 py-16">
           <div className="p-8 md:p-12 rounded-3xl border border-neutral-900 bg-gradient-to-br from-neutral-900 to-neutral-950 text-center relative overflow-hidden">
