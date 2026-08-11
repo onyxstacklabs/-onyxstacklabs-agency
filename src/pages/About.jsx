@@ -15,12 +15,10 @@ import finalCtaImage from '../assets/images/about/about-final-cta.webp';
 export default function About({ currentPath, navigateToNode }) {
 
   // Unique per-page SEO — title, description, and canonical for /about.
-  // (No page-specific JSON-LD needed here: the global Organization/
-  // ProfessionalService schema in index.html already covers company-wide
-  // details, so this avoids running a second, slightly different
-  // ProfessionalService schema block on the same page.)
+  // Title shortened to stay well under Google's ~60-char display limit
+  // while remaining specific and meaningful to this page's context.
   useSEO({
-    title: 'About Us | OnyxStack Labs - Enterprise Software & AI Engineering',
+    title: 'About OnyxStack Labs | Software Engineering Agency',
     description: 'Learn about OnyxStack Labs, a premier software engineering agency specializing in custom React development, MERN stack solutions, and enterprise AI integrations.',
     path: '/about'
   });
@@ -397,6 +395,40 @@ export default function About({ currentPath, navigateToNode }) {
                 <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-sans">{flow.desc}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* SECTION 7.5: RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-24 border-t border-neutral-900/60">
+          <div className="max-w-3xl mb-12 group">
+            <p className="text-xs font-mono uppercase tracking-widest text-[#06B6D4] mb-3">// Explore Further</p>
+            <h2 className="text-2xl sm:text-3.5xl font-bold tracking-tight text-white transition-all duration-300 group-hover:text-cyan-400">Related resources</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <a
+              href="/services"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/services'); }}
+              className="group/link p-6 rounded-xl border border-neutral-900 bg-neutral-950/40 hover:border-[#06B6D4]/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover/link:text-[#06B6D4] transition-colors duration-300">What We Build</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Explore the specific services our engineering team delivers.</p>
+            </a>
+            <a
+              href="/careers"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/careers'); }}
+              className="group/link p-6 rounded-xl border border-neutral-900 bg-neutral-950/40 hover:border-[#06B6D4]/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover/link:text-[#06B6D4] transition-colors duration-300">Join Our Team</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">See open roles and what it's like to build here full-time.</p>
+            </a>
+            <a
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/contact'); }}
+              className="group/link p-6 rounded-xl border border-neutral-900 bg-neutral-950/40 hover:border-[#06B6D4]/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover/link:text-[#06B6D4] transition-colors duration-300">Start a Conversation</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Tell our team about your project and get a scoping call.</p>
+            </a>
           </div>
         </section>
 
