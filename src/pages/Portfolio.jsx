@@ -255,6 +255,40 @@ export default function Portfolio({ currentPath, navigateToNode }) {
           </div>
         </section>
 
+        {/* SECTION 6.5: RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-neutral-900/60">
+          <div className="max-w-3xl mb-10">
+            <p className="text-xs font-mono uppercase tracking-widest text-[#06B6D4] mb-3">Explore Further</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">Related resources</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <a
+              href="/services"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/services'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/40 hover:border-neutral-800 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-[#06B6D4] transition-colors duration-300">Our Services</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">See the capabilities behind these deployments, explained in technical detail.</p>
+            </a>
+            <a
+              href="/projects"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/projects'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/40 hover:border-neutral-800 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-[#06B6D4] transition-colors duration-300">In-Depth Case Studies</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Read the full problem, solution, and measurable outcome for each system.</p>
+            </a>
+            <a
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/contact'); }}
+              className="group p-6 rounded-2xl border border-neutral-900 bg-neutral-950/40 hover:border-neutral-800 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-[#06B6D4] transition-colors duration-300">Start Your Project</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Bring your own deployment idea to our engineering team.</p>
+            </a>
+          </div>
+        </section>
+
         {/* SECTION 7: FINAL CALL TO ACTION INTERFACE CONSOLE */}
         <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 sm:py-24 border-t border-neutral-900/60">
           <div className="p-8 sm:p-16 rounded-3xl border border-neutral-900 bg-gradient-to-r from-neutral-950 via-neutral-950 to-neutral-900/40 relative overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-8">
