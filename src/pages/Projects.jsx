@@ -23,8 +23,9 @@ export default function Projects({ currentPath, navigateToNode }) {
   const [activeCase, setActiveCase] = useState(0);
 
   // Unique per-page SEO — title, description, and canonical for /projects.
+  // Title trimmed to stay comfortably under Google's ~60-char display limit.
   useSEO({
-    title: 'Case Studies | Enterprise Software Projects - OnyxStack Labs',
+    title: 'Case Studies | Enterprise Projects - OnyxStack Labs',
     description: 'Detailed technical case studies from OnyxStack Labs — EdTech ERPs, B2B commerce platforms, security access systems, and real-time analytics, with measurable engineering outcomes.',
     path: '/projects'
   });
@@ -436,6 +437,55 @@ export default function Projects({ currentPath, navigateToNode }) {
                 <p className="text-[9px] font-mono uppercase tracking-widest text-neutral-500">Verified Node Asset</p>
               </motion.div>
             ))}
+          </motion.div>
+        </section>
+
+        {/* SECTION 5.5: RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-24 border-t border-neutral-900/50">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fxFadeUp}
+            className="max-w-3xl mb-12"
+          >
+            <p className="text-xs font-mono uppercase tracking-widest text-cyan-400 mb-3 tracking-[0.2em]">// Explore Further</p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-sans">Related resources</h2>
+          </motion.div>
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fxStaggerContainer}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+          >
+            <motion.a
+              variants={fxFadeUp}
+              href="/portfolio"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/portfolio'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Full Portfolio</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Browse every deployment we've shipped, at a glance.</p>
+            </motion.a>
+            <motion.a
+              variants={fxFadeUp}
+              href="/services"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/services'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Our Services</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">See the exact capabilities behind these case studies.</p>
+            </motion.a>
+            <motion.a
+              variants={fxFadeUp}
+              href="/pricing"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/pricing'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Pricing Models</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Understand the investment behind a system like this.</p>
+            </motion.a>
           </motion.div>
         </section>
 
