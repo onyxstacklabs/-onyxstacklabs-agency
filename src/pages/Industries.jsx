@@ -23,8 +23,9 @@ export default function Industries({ currentPath, navigateToNode }) {
   const [selectedIndustry, setSelectedIndustry] = useState(0);
 
   // Unique per-page SEO — title, description, and canonical for /industries.
+  // Title trimmed to stay comfortably under Google's ~60-char display limit.
   useSEO({
-    title: 'Industries We Serve | Enterprise Software by Vertical - OnyxStack Labs',
+    title: 'Industries We Serve | OnyxStack Labs',
     description: 'Custom software solutions built for Education, Healthcare, Retail, Manufacturing, Finance, Logistics, and more — engineered by OnyxStack Labs for sector-specific compliance and scale.',
     path: '/industries'
   });
@@ -453,6 +454,55 @@ export default function Industries({ currentPath, navigateToNode }) {
                 <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-sans tracking-wide">{phase.summary || phase.desc}</p>
               </motion.div>
             ))}
+          </motion.div>
+        </section>
+
+        {/* SECTION 5.5: RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-24 border-t border-neutral-900/50">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fxFadeUp}
+            className="max-w-3xl mb-12"
+          >
+            <p className="text-xs font-mono uppercase tracking-widest text-cyan-400 mb-3 tracking-[0.2em]">// Explore Further</p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-sans">Related resources</h2>
+          </motion.div>
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fxStaggerContainer}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+          >
+            <motion.a
+              variants={fxFadeUp}
+              href="/services"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/services'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Our Services</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">See the engineering capabilities behind these sector solutions.</p>
+            </motion.a>
+            <motion.a
+              variants={fxFadeUp}
+              href="/projects"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/projects'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Case Studies</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Read detailed, measurable outcomes from real deployments.</p>
+            </motion.a>
+            <motion.a
+              variants={fxFadeUp}
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/contact'); }}
+              className="group p-6 rounded-xl border border-neutral-900 bg-neutral-950/60 hover:border-cyan-500/30 hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <h3 className="text-base font-bold text-white mb-2 font-sans group-hover:text-cyan-400 transition-colors duration-300">Discuss Your Sector</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">Get a tailored architecture roadmap for your specific industry.</p>
+            </motion.a>
           </motion.div>
         </section>
 
