@@ -1,15 +1,21 @@
 import React, { useEffect } from 'react';
+import { useSEO } from '../utils/useSEO';
 
 export default function ThankYou({ currentPath, navigateToNode }) {
-  
-  // Explicit subview scroll reset and SEO header synchronization
+
+  // Unique per-page SEO for /thank-you — noIndex: true because this page
+  // is only reachable after a form submission, has thin/duplicate content,
+  // and shouldn't compete for crawl budget or appear in search results.
+  useSEO({
+    title: 'Thank You | OnyxStack Labs',
+    description: 'Thank you for contacting OnyxStack Labs. Your inquiry has been received successfully. Our team will contact you shortly.',
+    path: '/thank-you',
+    noIndex: true
+  });
+
+  // Explicit subview scroll reset
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Thank You | OnyxStack Labs";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute("content", "Thank you for contacting OnyxStack Labs. Your inquiry has been received successfully. Our team will contact you shortly.");
-    }
   }, []);
 
   // Section: Operational Roadmap
