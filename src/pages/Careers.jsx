@@ -202,4 +202,189 @@ export default function Careers({ currentPath, navigateToNode }) {
               {["All", "Engineering", "Design"].map((d) => (
                 <button
                   key={d}
-                  on
+                  onClick={() => setSelectedDept(d)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-mono transition-all ${selectedDept === d ? 'bg-neutral-900 border border-[#06B6D4]/20 text-[#06B6D4] font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJobs.map((job) => (
+              <div key={job.id} className="p-6 rounded-2xl border border-neutral-900/80 bg-gradient-to-b from-neutral-950 to-neutral-950/40 flex flex-col justify-between group min-h-[360px] transition-all">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="px-2.5 py-0.5 rounded bg-neutral-900 border border-neutral-850 text-neutral-400 font-mono text-[9px] uppercase tracking-wider">{job.dept}</span>
+                    <span className="text-[10px] font-mono text-neutral-500">{job.experience}</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#06B6D4] mb-1">{job.title}</h3>
+                  <p className="text-xs text-neutral-400 leading-relaxed line-clamp-4">{job.desc}</p>
+                </div>
+                <div className="mt-8">
+                  <button
+                    onClick={() => { setActiveApplicationModal(job.title); setModalStep(1); }}
+                    className="w-full py-3 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-850 group-hover:bg-[#06B6D4] group-hover:text-black font-mono font-bold text-xs uppercase tracking-wider transition-all"
+                  >
+                    Initialize Application
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* RELATED RESOURCES CROSS-LINKING */}
+        <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-neutral-900/60">
+          <div className="max-w-3xl mb-10">
+            <p className="text-xs font-mono uppercase tracking-widest text-[#06B6D4] mb-3">Explore Further</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Related resources</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <a
+              href="/about"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/about'); }}
+              className="group p-6 rounded-2xl border border-neutral-900/80 bg-gradient-to-b from-neutral-950 to-neutral-950/40 hover:border-[#06B6D4]/30 hover:-translate-y-0.5 transition-all"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#06B6D4] transition-colors">About OnyxStack Labs</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Learn who we are, what we value, and how we work.</p>
+            </a>
+            <a
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); navigateToNode('/contact'); }}
+              className="group p-6 rounded-2xl border border-neutral-900/80 bg-gradient-to-b from-neutral-950 to-neutral-950/40 hover:border-[#06B6D4]/30 hover:-translate-y-0.5 transition-all"
+            >
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#06B6D4] transition-colors">Have Questions?</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">Reach out directly if you don't see a role that fits yet.</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      {/* TERMINAL ADAPTIVE MODAL INTERACTION SYSTEM */}
+      {activeApplicationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md" onClick={handleModalClose} />
+          
+          <div className="relative w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl z-10 font-mono">
+            
+            {/* Header matrix */}
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-[#06B6D4] text-[9px] uppercase tracking-widest mb-1">
+                  SYS.API://TERMINAL_CONNECTED
+                </span>
+                <h3 className="text-base font-bold text-white font-sans">
+                  {modalStep === 4 ? "Transmission Finalized" : "Recruitment Node"}
+                </h3>
+              </div>
+              <button onClick={handleModalClose} className="text-neutral-500 hover:text-neutral-300 text-xs">[ESC]</button>
+            </div>
+
+            {/* STEP 1: INITIAL HANDSHAKE FLOW */}
+            {modalStep === 1 && (
+              <div className="space-y-4">
+                <div className="bg-[#050505] border border-neutral-900 rounded-xl p-4 text-xs space-y-2 text-neutral-400">
+                  <p><span className="text-[#06B6D4]">&gt;</span> Pipeline Initialization Sequence Active...</p>
+                  <p><span className="text-[#06B6D4]">&gt;</span> Target Node: <span className="text-white font-bold">{activeApplicationModal}</span></p>
+                  <p className="text-emerald-400 font-bold">✓ Secure Data Tunnel Ready for Telemetry Injection.</p>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button onClick={handleModalClose} className="px-4 py-2 border border-neutral-850 rounded-lg text-xs text-neutral-500 hover:text-white">Cancel</button>
+                  <button onClick={() => setModalStep(2)} className="px-5 py-2 bg-white text-black font-bold rounded-lg text-xs hover:bg-[#06B6D4]">PROCEED TO INTAKE</button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: INLINE FORM INPUT INTERACTION */}
+            {modalStep === 2 && (
+              <form onSubmit={handleIntakeSubmission} className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] text-neutral-500 block mb-1 uppercase tracking-wider">Candidate Operator Name*</label>
+                    <input 
+                      type="text" required
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full bg-[#050505] border border-neutral-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#06B6D4]"
+                      placeholder="e.g. John Doe"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-500 block mb-1 uppercase tracking-wider">Secure Transmission Email*</label>
+                    <input 
+                      type="email" required
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full bg-[#050505] border border-neutral-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#06B6D4]"
+                      placeholder="operator@network.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-500 block mb-1 uppercase tracking-wider">Contact Phone Number* (WhatsApp Macro Trigger)</label>
+                    <input 
+                      type="tel" required
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="w-full bg-[#050505] border border-neutral-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#06B6D4]"
+                      placeholder="e.g. +923001234567"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-500 block mb-1 uppercase tracking-wider">GitHub / Portfolio Link*</label>
+                    <input 
+                      type="url" required
+                      value={formData.portfolio}
+                      onChange={(e) => setFormData({...formData, portfolio: e.target.value})}
+                      className="w-full bg-[#050505] border border-neutral-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#06B6D4]"
+                      placeholder="https://github.com/username"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-500 block mb-1 uppercase tracking-wider">Core Technical Vectors / Stack Summary</label>
+                    <textarea 
+                      rows="2"
+                      value={formData.experience}
+                      onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                      className="w-full bg-[#050505] border border-neutral-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#06B6D4] resize-none"
+                      placeholder="React, Next.js, Node, Tailwinds..."
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setModalStep(1)} className="px-4 py-2 text-xs text-neutral-500 hover:text-white">Back</button>
+                  <button type="submit" className="px-5 py-2 bg-[#06B6D4] text-black font-bold rounded-lg text-xs uppercase tracking-wider">Submit Profile</button>
+                </div>
+              </form>
+            )}
+
+            {/* STEP 3: TRANSACTIONAL WAITING MATRIX */}
+            {modalStep === 3 && (
+              <div className="py-6 text-center space-y-3">
+                <div className="w-6 h-6 border-2 border-[#06B6D4] border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-xs text-neutral-400 animate-pulse">Syncing payload cluster data to cloud & dispatching core logs...</p>
+              </div>
+            )}
+
+            {/* STEP 4: INTUITIVE PIPELINE SUCCESS */}
+            {modalStep === 4 && (
+              <div className="space-y-4">
+                <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4 text-center">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                  <h4 className="text-white font-bold font-sans text-sm mt-1">Transmission Relayed</h4>
+                  <p className="text-[11px] text-neutral-400 mt-1 leading-relaxed">
+                    Your profile matrix has bypassed architectural debt queues. Review logs initiated.
+                  </p>
+                </div>
+                <button onClick={handleModalClose} className="w-full py-2 bg-neutral-900 border border-neutral-850 hover:bg-neutral-800 rounded-xl text-xs text-neutral-300 font-bold">
+                  Disconnect Terminal Channel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
