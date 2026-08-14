@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useSEO } from '../utils/useSEO';
 
 export default function PrivacyPolicy() {
   const [activeSection, setActiveSection] = useState("introduction");
+
+  // Unique per-page SEO — title, description, and canonical for /privacy-policy.
+  useSEO({
+    title: 'Privacy Policy | OnyxStack Labs',
+    description: 'How OnyxStack Labs collects, protects, and processes user and client data across our web applications and consulting services.',
+    path: '/privacy-policy'
+  });
 
   // Synchronize layout scroll vector on component activation
   useEffect(() => {
@@ -238,6 +246,7 @@ export default function PrivacyPolicy() {
                 <div className="text-white font-bold">OnyxStack Labs LLC</div>
                 <div className="text-neutral-400">Attn: Legal Compliance & Privacy Node</div>
                 <div className="text-neutral-400">Corporate Email: <a href="mailto:onyxstacklabs@gmail.com" className="text-[#06B6D4] hover:underline">onyxstacklabs@gmail.com</a></div>
+                <div className="text-neutral-400">Website: <a href="https://onyxstacklabs.com" className="text-[#06B6D4] hover:underline">onyxstacklabs.com</a></div>
               </div>
             </article>
 
