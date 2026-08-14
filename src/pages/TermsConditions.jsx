@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useSEO } from '../utils/useSEO';
 
 export default function TermsConditions() {
   const [activeTermSection, setActiveTermSection] = useState("introduction");
+
+  // Unique per-page SEO — title, description, and canonical for /terms-conditions.
+  useSEO({
+    title: 'Terms & Conditions | OnyxStack Labs',
+    description: 'Terms and Conditions governing custom software engineering, cloud architecture, and digital delivery engagements with OnyxStack Labs.',
+    path: '/terms-conditions'
+  });
 
   // Synchronize layout scroll vector on component activation
   useEffect(() => {
@@ -296,8 +304,8 @@ export default function TermsConditions() {
                 </div>
                 <div className="text-neutral-400">
                   Website:{' '}
-                  <a href="https://onyxstacklabs-agency.vercel.app" className="text-[#06B6D4] hover:underline">
-                    onyxstacklabs-agency.vercel.app
+                  <a href="https://onyxstacklabs.com" className="text-[#06B6D4] hover:underline">
+                    onyxstacklabs.com
                   </a>
                 </div>
                 <div className="text-neutral-400">Headquarters: Pakistan</div>
