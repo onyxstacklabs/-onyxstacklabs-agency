@@ -2,8 +2,17 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SearchCheck } from 'lucide-react';
 import { toolsConfig as rawToolsConfig } from '../config/toolsConfig';
+import { useSEO } from '../utils/useSEO';
 
 export default function ToolsHub({ currentPath, navigateToNode }) {
+
+  // Unique per-page SEO — title, description, and canonical for /tools.
+  useSEO({
+    title: 'Free Tools | ROI, Cost & Project Estimators - OnyxStack Labs',
+    description: 'Free, no-signup tools to estimate software costs, calculate ROI, check site speed, and plan your next build — built by OnyxStack Labs.',
+    path: '/tools'
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
