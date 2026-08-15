@@ -2,17 +2,20 @@ import React, { useEffect } from 'react';
 
 // LIVE DATA CORE IMPORTS
 import { siteConfig } from '../config/siteConfig';
+import { useSEO } from '../utils/useSEO';
 
 export default function CookiesPolicy({ currentPath, navigateToNode }) {
-  
-  // Set explicit subview window focus on mounting phase and sync SEO headers
+
+  // Unique per-page SEO — title, description, and canonical for /cookies-policy.
+  useSEO({
+    title: 'Cookies Policy | OnyxStack Labs',
+    description: 'Learn how OnyxStack Labs uses cookies to improve your browsing experience while protecting your privacy.',
+    path: '/cookies-policy'
+  });
+
+  // Set explicit subview window focus on mounting phase
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Cookies Policy | OnyxStack Labs";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute("content", "Learn how OnyxStack Labs uses cookies to improve your browsing experience while protecting your privacy.");
-    }
   }, []);
 
   // Section 3 Data: Categorized System Cookies Matrix
