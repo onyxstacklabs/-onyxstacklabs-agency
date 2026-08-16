@@ -75,6 +75,7 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
 
   const metricCards = result
     ? [
+        { label: 'Status Code', value: String(result.statusCode) },
         { label: 'Time to First Byte', value: `${result.ttfbMs} ms` },
         { label: 'Total Load Time', value: `${result.totalMs} ms` },
         { label: 'Page Size', value: `${result.sizeKb} KB` },
@@ -84,12 +85,17 @@ export default function SpeedChecker({ currentPath, navigateToNode }) {
       ]
     : [];
 
+  const shareText = result
+    ? `${result.finalUrl} scored "${grade.label}" — ${result.totalMs}ms total load time. Check your own site:`
+    : undefined;
+
   return (
     <ToolLayout
       currentPath={currentPath}
       navigateToNode={navigateToNode}
       title="Website Speed Checker"
       tagline="Instant server-side health check for any website — response time, HTTPS, compression, and caching. No signup needed."
+      shareText={shareText}
     >
       <div className="space-y-6">
         <div>
