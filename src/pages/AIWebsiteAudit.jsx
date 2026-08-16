@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuditSchema } from '../components/AuditSchema';
 import { AuditScoreRing } from '../components/AuditScoreRing';
 import { AuditExportModal } from '../components/AuditExportModal';
 import { executeAudit } from '../components/auditEngine';
 import { trackEvent } from '../utils/analytics';
+import { useSEO } from '../utils/useSEO';
 
 export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
   const [url, setUrl] = useState('');
@@ -19,29 +20,24 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
   const title = "AI Website Audit Tool";
   const tagline = "Audit your website's SEO, performance, accessibility, AI readiness and technical health in seconds.";
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [currentPath]);
+  useSEO({
+    title: `${title} | Free Tool by OnyxStack Labs`,
+    description: tagline,
+    path: currentPath,
+  });
 
-  // Set page meta title and description
-  useEffect(() => {
-    const previousTitle = document.title;
-    document.title = `${title} | Free Tool by OnyxStack Labs`;
-
-    return () => {
-      document.title = previousTitle;
-    };
-  }, []);
+  const shareText = report
+    ? `My website scored ${report.overallScore}/100 on OnyxStack Labs' AI Website Audit. Check yours:`
+    : `${title} — ${tagline}`;
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
-    const text = `${title} — ${tagline}`;
 
     trackEvent('tool_share', { tool: title, method: navigator.share ? 'native' : 'clipboard' });
 
     if (navigator.share) {
       try {
-        await navigator.share({ title, text, url: shareUrl });
+        await navigator.share({ title, text: shareText, url: shareUrl });
       } catch {
         // User cancelled sheet
       }
@@ -49,7 +45,7 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
     }
 
     try {
-      await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
