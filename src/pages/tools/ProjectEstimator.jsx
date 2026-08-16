@@ -6,7 +6,7 @@ import ToolLayout from '../../components/ToolLayout';
 const PLATFORMS = [
   { id: 'web', label: 'Web Application', min: 2500, max: 6000, weeksMin: 3, weeksMax: 6 },
   { id: 'mobile', label: 'Mobile App (Android)', min: 3500, max: 8000, weeksMin: 4, weeksMax: 8 },
-  { id: 'both', label: 'Web + Mobile', min: 5500, max: 12000, weeksMin: 6, weeksMax: 10 }
+  { id: 'both', label: 'Web + Mobile (Android)', min: 5500, max: 12000, weeksMin: 6, weeksMax: 10 }
 ];
 
 const FEATURES = [
@@ -51,12 +51,15 @@ export default function ProjectEstimator({ currentPath, navigateToNode }) {
     };
   }, [platformId, selectedFeatures]);
 
+  const shareText = `Estimated budget for my project: ${formatUsd(estimate.costMin)}–${formatUsd(estimate.costMax)}, ${estimate.weeksMin}–${estimate.weeksMax} weeks. Get your own estimate:`;
+
   return (
     <ToolLayout
       currentPath={currentPath}
       navigateToNode={navigateToNode}
       title="Software Project Cost Estimator"
       tagline="Pick your platform and features to get a rough budget and timeline range in seconds."
+      shareText={shareText}
     >
       <div className="space-y-8">
 
