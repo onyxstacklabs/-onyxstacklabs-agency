@@ -1,19 +1,25 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useSEO } from '../utils/useSEO';
 
 /**
  * NotFound
  * Premium, enterprise-grade 404 error experience engineered with fluid ambient meshes,
  * micro-interactions, complete keyboard navigation accessibility, and clean SEO handling.
  */
-export default function NotFound({ navigateToNode }) {
+export default function NotFound({ currentPath, navigateToNode }) {
   let navigate;
+  let location;
   try {
     navigate = useNavigate();
+    location = useLocation();
   } catch (e) {
     // Fallback if component is rendered outside standard React Router provider
     navigate = null;
+    location = null;
   }
+
+  const resolvedPath = currentPath || (location ? location.pathname : '/404');
 
   const handleNavigation = (path) => {
     if (navigateToNode) {
@@ -25,10 +31,12 @@ export default function NotFound({ navigateToNode }) {
     }
   };
 
-  // Dynamically update context title for search spiders and screen readers
-  useEffect(() => {
-    document.title = "404 Page Not Found | OnyxStack Labs";
-  }, []);
+  useSEO({
+    title: '404 Page Not Found | OnyxStack Labs',
+    description: "The page you're looking for doesn't exist or may have been moved. Return to OnyxStack Labs' homepage to keep exploring.",
+    path: resolvedPath,
+    noIndex: true,
+  });
 
   return (
     <div className="relative min-h-[80vh] w-full flex flex-col items-center justify-center px-6 py-12 text-center overflow-hidden z-10 select-none">
