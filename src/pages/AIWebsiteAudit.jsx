@@ -125,7 +125,6 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
         <section className="max-w-3xl mx-auto px-6 md:px-12 pb-16">
           <div className="p-6 md:p-10 rounded-2xl border border-neutral-800 bg-neutral-950/50 space-y-8">
             
-            {/* INPUT FORM CARD */}
             <form onSubmit={handleStartAudit} className="space-y-4">
               <div className="relative">
                 <input
@@ -151,14 +150,12 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
               </button>
             </form>
 
-            {/* TRUST BADGES */}
             <div className="flex flex-wrap items-center justify-center gap-6 pt-4 border-t border-neutral-800 text-xs text-neutral-400 font-medium">
               <span className="flex items-center gap-1.5">⚡ Fast Execution</span>
               <span className="flex items-center gap-1.5">🔒 100% Secure</span>
               <span className="flex items-center gap-1.5">💳 No Signup Required</span>
             </div>
 
-            {/* LOADING ANIMATION WORKFLOW */}
             <AnimatePresence>
               {isLoading && (
                 <motion.div
@@ -181,7 +178,6 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
               )}
             </AnimatePresence>
 
-            {/* AUDIT REPORT DISPLAY */}
             {report && !isLoading && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -189,7 +185,6 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
                 transition={{ duration: 0.3 }}
                 className="space-y-8 pt-4"
               >
-                {/* REPORT HEADER SUMMARY */}
                 <div className="bg-neutral-950/60 border border-neutral-800 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="space-y-1 text-center md:text-left">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Audit Results For</span>
@@ -209,7 +204,6 @@ export function AIWebsiteAuditPage({ currentPath, navigateToNode }) {
                   </div>
                 </div>
 
-                {/* CATEGORIES GRID */}
                 <div className="grid grid-cols-1 gap-4">
                   {Object.entries(report.categories).map(([key, cat]) => (
                     <div
