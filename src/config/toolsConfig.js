@@ -1,7 +1,3 @@
-// Central registry for all interactive tools.
-// Add a new tool here, then create its page in src/pages/tools/
-// and register the route in App.jsx — the hub page updates automatically.
-
 import { Calculator, Gauge, ClipboardCheck, Bot, Sparkles, Scale, SearchCheck } from 'lucide-react';
 
 export const toolsConfig = [
