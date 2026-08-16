@@ -28,12 +28,17 @@ export default function ROICalculator({ currentPath, navigateToNode }) {
   const labelClass =
     "block text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-2";
 
+  // Carries the live calculated result into the share sheet/clipboard text
+  // (via ToolLayout's shareText prop) instead of just the generic tagline.
+  const shareText = `I could save ${results.annualHoursSaved} hours and $${results.annualCostSaved.toLocaleString()}/year by automating this task — check your own number:`;
+
   return (
     <ToolLayout
       currentPath={currentPath}
       navigateToNode={navigateToNode}
       title="AI Automation ROI Calculator"
       tagline="Estimate how many hours and how much budget you could save by automating a manual task."
+      shareText={shareText}
     >
       <div className="space-y-6">
         <div>
