@@ -184,7 +184,7 @@ export default function App() {
           />
           <Route 
             path="*" 
-            element={<NotFound />} 
+            element={<NotFound currentPath={currentPath} navigateToNode={navigateToNode} />} 
           />
         </Route>
       </Routes>
