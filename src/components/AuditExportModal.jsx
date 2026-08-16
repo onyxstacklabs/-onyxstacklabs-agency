@@ -50,7 +50,7 @@ export const AuditExportModal = ({ isOpen, onClose, auditData }) => {
               onClick={handleCopy}
               className="w-full py-3.5 px-5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-center gap-3"
             >
-              {copied ? '✓ Link Copied to Clipboard' : '🔗 Copy Shareable Link'}
+              {copied ? '✓ Link Copied to Clipboard' : '🔗 Copy Page Link'}
             </button>
           </div>
 
