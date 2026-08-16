@@ -26,10 +26,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Only http/https URLs are allowed' });
   }
 
-  // Basic SSRF guard — block localhost and common private IP ranges
+  // Basic SSRF guard — block localhost, common private IP ranges, and the
+  // cloud metadata endpoint (169.254.169.254 / 169.254.0.0/16), which can
+  // leak provider credentials if a server-side fetcher is allowed to reach it.
   const hostname = target.hostname.toLowerCase();
-  const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '::1'];
-  const privateIpPattern = /^(10\.|172\.(1[6-9]|2\d|3[0-1])\.|192\.168\.)/;
+  const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '::1', '169.254.169.254'];
+  const privateIpPattern = /^(10\.|172\.(1[6-9]|2\d|3[0-1])\.|192\.168\.|169\.254\.)/;
   if (blockedHosts.includes(hostname) || privateIpPattern.test(hostname)) {
     return res.status(400).json({ error: 'This address cannot be checked' });
   }
