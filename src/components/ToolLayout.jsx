@@ -4,41 +4,21 @@ import { siteConfig } from '../config/siteConfig';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { trackEvent } from '../utils/analytics';
+import { useSEO } from '../utils/useSEO';
 
-export default function ToolLayout({ currentPath, navigateToNode, title, tagline, shareText, children }) {
+export default function ToolLayout({ currentPath, navigateToNode, title, tagline, shareText, faqSchema, children }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPath]);
 
-  // Sets a unique <title> and meta description per tool, and restores the
-  // site-wide defaults on unmount so navigating to a non-tool page doesn't
-  // carry a stale tool title with it.
-  useEffect(() => {
-    const previousTitle = document.title;
-    const metaDescription = document.querySelector('meta[name="description"]');
-    const previousDescription = metaDescription ? metaDescription.getAttribute('content') : null;
-
-    document.title = `${title} | Free Tool by OnyxStack Labs`;
-    if (metaDescription) {
-      metaDescription.setAttribute('content', tagline);
-    }
-
-    return () => {
-      document.title = previousTitle;
-      if (metaDescription && previousDescription !== null) {
-        metaDescription.setAttribute('content', previousDescription);
-      }
-    };
-  }, [title, tagline]);
-
-  const triggerConsultation = () => {
-    navigateToNode('/');
-    setTimeout(() => {
-      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-    }, 150);
-  };
+  useSEO({
+    title: `${title} | Free Tool by OnyxStack Labs`,
+    description: tagline,
+    path: currentPath,
+    faqSchema: faqSchema || null,
+  });
 
   // Shares the tool (and its live result, if the tool passed one via
   // shareText) using the native share sheet on supported devices, falling
@@ -67,6 +47,13 @@ export default function ToolLayout({ currentPath, navigateToNode, title, tagline
     } catch {
       // Clipboard API unavailable — silently ignore rather than break the UI.
     }
+  };
+
+  const triggerConsultation = () => {
+    navigateToNode('/');
+    setTimeout(() => {
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    }, 150);
   };
 
   return (
