@@ -20,11 +20,6 @@ export default function ToolLayout({ currentPath, navigateToNode, title, tagline
     faqSchema: faqSchema || null,
   });
 
-  // Shares the tool (and its live result, if the tool passed one via
-  // shareText) using the native share sheet on supported devices, falling
-  // back to copying a link + message to the clipboard everywhere else.
-  // This is the mechanism that lets a visitor's result travel to their
-  // friends/network, driving referral traffic and backlinks to the site.
   const handleShare = async () => {
     const shareUrl = window.location.href;
     const text = shareText || `${title} — ${tagline}`;
